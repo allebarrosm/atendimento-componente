@@ -61,3 +61,9 @@ Ajustes de layout para ficar idêntico ao BackOffice no Web.
 ### Correções
 - Pinos de cliente mantêm o ícone da situação no modo de edição; só o cliente
   em edição usa o ícone de alvo.
+
+### 0.1.1 (ajuste)
+
+- Legenda inferior em grade: quatro colunas de mesma largura com os checkboxes
+  alinhados (mesmo x por coluna e mesmo y por linha), independente do tamanho do
+  rótulo.
