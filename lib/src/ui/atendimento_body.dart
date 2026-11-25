@@ -375,18 +375,19 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
   Widget _buildMapPills(BuildContext context) {
     final target = widget.store.streetViewCoord;
 
+    // Ao lado do botão de tela cheia (que o mapa desenha em `right: 12`).
     return Positioned(
-      top: 12,
-      left: 0,
-      right: 0,
+      // Centralizado com o botão de tela cheia (46px em `top: 12`).
+      top: 19,
+      right: 66,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _pill(
             label: _mapController.isNormalType ? 'Satélite' : 'Mapa',
             onTap: _mapController.toggleMapType,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           _pill(
             label: 'StreetView',
             icon: Icons.streetview,
@@ -414,14 +415,15 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+          // Mais largo e mais achatado.
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 7),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
                 Icon(
                   icon,
-                  size: 18,
+                  size: 16,
                   color: filled ? Colors.white : Colors.black,
                 ),
                 const SizedBox(width: 6),
@@ -429,8 +431,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  fontWeight: FontWeight.normal,
                   color: filled ? Colors.white : Colors.black,
                 ),
               ),
