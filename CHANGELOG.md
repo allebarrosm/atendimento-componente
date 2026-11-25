@@ -143,3 +143,8 @@ Ajustes do mobile.
   o `GetOData`, e agora basta ter período (representante é opcional).
 - `AtendimentoRepository.fetchClientsWithoutService` público para o store
   disparar essa busca em paralelo.
+
+## 0.1.11 — 2025-11-25
+
+- `GetClientesSemAtendimento` passa a ser chamado sempre que houver período,
+  inclusive no modo "Vazio" e sem representante selecionado.

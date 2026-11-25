@@ -69,15 +69,10 @@ class AtendimentoRepository {
     final raw = <Map<String, dynamic>>[];
     var haveServices = false;
 
-    final hasClientPeriod =
-        query.clientParams().containsKey('codRepres') &&
-            query.clientParams().containsKey('dataInicial');
-
-    // No modo "Não atendidos" o endpoint é a única fonte: basta o período
-    // (o representante é opcional na consulta).
-    final canCallClients = onlyNotAttended
-        ? query.clientParams().containsKey('dataInicial')
-        : hasClientPeriod;
+    // Basta o período: o representante é opcional na consulta (e o filtro
+    // "Agendamentos" precisa dessa chamada também no modo "Vazio").
+    final canCallClients =
+        query.clientParams().containsKey('dataInicial');
 
     final callClients = page == 0 &&
         !onlyAttended &&
