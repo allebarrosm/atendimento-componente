@@ -67,3 +67,6 @@ Ajustes de layout para ficar idêntico ao BackOffice no Web.
 - Legenda inferior em grade: quatro colunas de mesma largura com os checkboxes
   alinhados (mesmo x por coluna e mesmo y por linha), independente do tamanho do
   rótulo.
+
+- Removida a faixa laranja de carregamento do topo do mapa (o mapa já não sai
+  da tela ao filtrar; a atualização acontece sem barra).

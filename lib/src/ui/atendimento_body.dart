@@ -119,26 +119,9 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (context) {
-        final body = switch (_layout) {
-          AtendimentoLayout.mobile => _buildMobile(context),
-          AtendimentoLayout.web => _buildWeb(context),
-        };
-
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            body,
-            // O mapa nunca sai da tela: o carregamento é só uma faixa no topo.
-            if (widget.store.loading)
-              const Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: LinearProgressIndicator(minHeight: 2),
-              ),
-          ],
-        );
+      builder: (context) => switch (_layout) {
+        AtendimentoLayout.mobile => _buildMobile(context),
+        AtendimentoLayout.web => _buildWeb(context),
       },
     );
   }
