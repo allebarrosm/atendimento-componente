@@ -120,3 +120,15 @@ Ajustes do mobile.
 
 - Tamanho dos pinos no mobile: cliente **66px** e atendimento (presencial/
   remoto/fora do cliente) **50px**. No Web seguem 25/25.
+
+## 0.1.9 — 2025-11-25
+
+- Novo filtro **Agendamentos** (`AgendamentosFiltro`): "Vazio", "Atendidos" e
+  "Não Atendidos". Ele decide quais endpoints a consulta chama:
+  - "Vazio" (padrão) → `GetOData` + `GetClientesSemAtendimento` (como antes);
+  - "Atendidos" → só `GetOData`;
+  - "Não Atendidos" → só `GetClientesSemAtendimento` (a API 06.22.0419 já traz
+    exatamente os clientes não atendidos), sem paginação.
+- No modo "Não Atendidos" o interruptor "Cliente sem agenda" é ligado
+  automaticamente para a lista/mapa não virem vazios.
+- Clientes sem atendimento (id 0) não são mais deduplicados na lista.

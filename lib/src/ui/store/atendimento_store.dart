@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:latlong2/latlong.dart' as latlng;
 import 'package:mobx/mobx.dart';
 
+import '../../core/agendamentos_filtro.dart';
 import '../../core/atendimento.dart';
 import '../../core/atendimento_filter.dart';
 import '../../core/atendimento_query.dart';
@@ -98,6 +99,10 @@ abstract class AtendimentoStoreBase with Store {
   @observable
   bool showClient = false;
 
+  /// Filtro "Agendamentos" (Vazio / Atendidos / Não Atendidos).
+  @observable
+  AgendamentosFiltro agendamentos = AgendamentosFiltro.todos;
+
   @observable
   DateTime? startDate;
 
@@ -182,10 +187,23 @@ abstract class AtendimentoStoreBase with Store {
   /// Atendimentos exibidos na lista/grade, sem repetir o mesmo atendimento.
   List<Atendimento> get rows {
     final seen = <int>{};
-    return services.where((a) => seen.add(a.id)).toList(growable: false);
+    final result = <Atendimento>[];
+    for (final atendimento in services) {
+      // Clientes sem atendimento podem vir com `Id` 0: nesse caso não dá para
+      // deduplicar por id (senão sobraria uma linha só).
+      if (atendimento.id == 0) {
+        result.add(atendimento);
+      } else if (seen.add(atendimento.id)) {
+        result.add(atendimento);
+      }
+    }
+    return result;
   }
 
   bool get hasMore {
+    // "Não atendidos" vem inteiro de uma vez (sem paginação).
+    if (agendamentos == AgendamentosFiltro.naoAtendidos) return false;
+
     final total = statistics?.grandTotal ?? 0;
     if (total <= 0) return false;
     return clients.length < total;
@@ -199,6 +217,7 @@ abstract class AtendimentoStoreBase with Store {
         client: client,
         serviceType: serviceType,
         modality: modality,
+        agendamentos: agendamentos,
       );
 
   // ---------------------------------------------------------------- ações
@@ -216,6 +235,7 @@ abstract class AtendimentoStoreBase with Store {
     String? clientNameValue,
     String? type,
     String? modalityValue,
+    AgendamentosFiltro? agendamentosFilter,
   }) async {
     startDate = start == null ? null : AtendimentoQuery.startOfDay(start);
     endDate = end == null ? null : AtendimentoQuery.endOfDay(end);
@@ -227,6 +247,14 @@ abstract class AtendimentoStoreBase with Store {
     clientName = clientNameValue;
     serviceType = type;
     modality = modalityValue;
+    if (agendamentosFilter != null) agendamentos = agendamentosFilter;
+
+    // "Não atendidos" só aparece se o interruptor "cliente sem agenda"
+    // estiver ligado — o pacote liga sozinho para a lista não vir vazia.
+    if (agendamentos == AgendamentosFiltro.naoAtendidos &&
+        !filter.showServices) {
+      filter = filter.copyWith(showServices: true);
+    }
 
     loading = true;
     errorMessage = null;

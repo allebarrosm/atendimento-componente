@@ -201,6 +201,22 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
     });
   }
 
+  late final _$agendamentosAtom =
+      Atom(name: 'AtendimentoStoreBase.agendamentos', context: context);
+
+  @override
+  AgendamentosFiltro get agendamentos {
+    _$agendamentosAtom.reportRead();
+    return super.agendamentos;
+  }
+
+  @override
+  set agendamentos(AgendamentosFiltro value) {
+    _$agendamentosAtom.reportWrite(value, super.agendamentos, () {
+      super.agendamentos = value;
+    });
+  }
+
   late final _$startDateAtom =
       Atom(name: 'AtendimentoStoreBase.startDate', context: context);
 
@@ -567,7 +583,8 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
       String? clientCode,
       String? clientNameValue,
       String? type,
-      String? modalityValue}) {
+      String? modalityValue,
+      AgendamentosFiltro? agendamentosFilter}) {
     return _$loadAsyncAction.run(() => super.load(
         start: start,
         end: end,
@@ -578,7 +595,8 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
         clientCode: clientCode,
         clientNameValue: clientNameValue,
         type: type,
-        modalityValue: modalityValue));
+        modalityValue: modalityValue,
+        agendamentosFilter: agendamentosFilter));
   }
 
   late final _$loadMoreAsyncAction =
@@ -734,6 +752,7 @@ errorMessage: ${errorMessage},
 page: ${page},
 filter: ${filter},
 showClient: ${showClient},
+agendamentos: ${agendamentos},
 startDate: ${startDate},
 endDate: ${endDate},
 agent: ${agent},

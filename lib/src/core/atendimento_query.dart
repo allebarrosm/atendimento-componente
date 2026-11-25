@@ -1,3 +1,5 @@
+import 'agendamentos_filtro.dart';
+
 /// Monta os parâmetros da API de atendimento (`LstClienteAtendimento`).
 ///
 /// O pacote devolve os nomes OData já prontos (`$filter`, `$orderby`, `skip`,
@@ -13,6 +15,7 @@ class AtendimentoQuery {
     this.client,
     this.serviceType,
     this.modality,
+    this.agendamentos = AgendamentosFiltro.todos,
   });
 
   /// Início do período (já normalizado para 00:00:00.000 local).
@@ -30,6 +33,9 @@ class AtendimentoQuery {
 
   /// Rótulo do filtro: `Presencial` / `Remoto`.
   final String? modality;
+
+  /// Filtro "Agendamentos" (decide quais endpoints a consulta chama).
+  final AgendamentosFiltro agendamentos;
 
   static const String orderBy = 'dataHoraInicioAtendimento asc';
 
@@ -113,6 +119,7 @@ class AtendimentoQuery {
     String? client,
     String? serviceType,
     String? modality,
+    AgendamentosFiltro? agendamentos,
   }) {
     return AtendimentoQuery(
       startDate: startDate ?? this.startDate,
@@ -122,6 +129,7 @@ class AtendimentoQuery {
       client: client ?? this.client,
       serviceType: serviceType ?? this.serviceType,
       modality: modality ?? this.modality,
+      agendamentos: agendamentos ?? this.agendamentos,
     );
   }
 

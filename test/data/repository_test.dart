@@ -151,6 +151,96 @@ void main() {
     });
   });
 
+  group('AtendimentoRepository filtro de agendamentos', () {
+    test('"Não atendidos" chama só GetClientesSemAtendimento', () async {
+      final api = FakeApi(
+        pages: [
+          [atendimentoJson(id: 1)],
+        ],
+        clientsWithoutService: [
+          atendimentoJson(
+            id: 2,
+            situation: 'NaoVisitadoSemAgenda',
+            modality: null,
+          ),
+        ],
+      );
+      final repository = AtendimentoRepository(api);
+
+      final result = await repository.fetchPage(
+        query: period.copyWith(agendamentos: AgendamentosFiltro.naoAtendidos),
+        page: 0,
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.value!.services, hasLength(1));
+      expect(api.clientCalls, 1);
+      expect(api.serviceCalls, 0);
+    });
+
+    test('"Atendidos" chama só GetOData', () async {
+      final api = FakeApi(
+        pages: [
+          [atendimentoJson(id: 1)],
+        ],
+      );
+      final repository = AtendimentoRepository(api);
+
+      final result = await repository.fetchPage(
+        query: period.copyWith(agendamentos: AgendamentosFiltro.atendidos),
+        page: 0,
+      );
+
+      expect(result.value!.services, hasLength(1));
+      expect(api.clientCalls, 0);
+      expect(api.serviceCalls, 1);
+    });
+
+    test('"Vazio" (padrão) continua chamando os dois', () async {
+      final api = FakeApi(
+        pages: [
+          [atendimentoJson(id: 1)],
+        ],
+      );
+      final repository = AtendimentoRepository(api);
+
+      await repository.fetchPage(query: period, page: 0);
+
+      expect(api.clientCalls, 1);
+      expect(api.serviceCalls, 1);
+    });
+
+    test('"Não atendidos" não pagina depois da primeira', () async {
+      final api = FakeApi(pages: []);
+      final repository = AtendimentoRepository(api);
+
+      final result = await repository.fetchPage(
+        query: period.copyWith(agendamentos: AgendamentosFiltro.naoAtendidos),
+        page: 1,
+      );
+
+      expect(result.value!.services, isEmpty);
+      expect(api.clientCalls, 0);
+      expect(api.serviceCalls, 0);
+    });
+
+    test('erro no endpoint de clientes é devolvido no modo "Não atendidos"',
+        () async {
+      final api = FakeApi(
+        clientsWithoutService: const [],
+        failClients: true,
+      );
+      final repository = AtendimentoRepository(api);
+
+      final result = await repository.fetchPage(
+        query: period.copyWith(agendamentos: AgendamentosFiltro.naoAtendidos),
+        page: 0,
+      );
+
+      expect(result.isSuccess, isFalse);
+    });
+  });
+
   group('AtendimentoRepository geocoder', () {
     test('geocodifica cliente sem coordenada e grava no backend', () async {
       final api = FakeApi(

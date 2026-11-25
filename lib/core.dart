@@ -1,3 +1,4 @@
+export 'src/core/agendamentos_filtro.dart';
 export 'src/core/atendimento.dart';
 export 'src/core/atendimento_filter.dart';
 export 'src/core/atendimento_format.dart';

@@ -10,6 +10,7 @@ class FakeApi implements AtendimentoApi {
     this.statistics = const <String, dynamic>{},
     this.failStatistics = false,
     this.failServices = false,
+    this.failClients = false,
     this.failUpdate = false,
   });
 
@@ -18,15 +19,20 @@ class FakeApi implements AtendimentoApi {
   final Map<String, dynamic> statistics;
   final bool failStatistics;
   final bool failServices;
+  final bool failClients;
   final bool failUpdate;
 
   final List<Map<String, String>> updates = [];
+  int clientCalls = 0;
+  int serviceCalls = 0;
+
   Map<String, String>? lastServiceParams;
   Map<String, String>? lastClientParams;
   Map<String, String>? lastStatisticsParams;
 
   @override
   Future<AtendimentoResponse> getServices(Map<String, String> params) async {
+    serviceCalls++;
     lastServiceParams = params;
     if (failServices) {
       return const AtendimentoResponse.failure('falha de rede');
@@ -43,7 +49,11 @@ class FakeApi implements AtendimentoApi {
   Future<AtendimentoResponse> getClientsWithoutService(
     Map<String, String> params,
   ) async {
+    clientCalls++;
     lastClientParams = params;
+    if (failClients) {
+      return const AtendimentoResponse.failure('falha de clientes');
+    }
     return AtendimentoResponse.ok(jsonEncode(clientsWithoutService));
   }
 

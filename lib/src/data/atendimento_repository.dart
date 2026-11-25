@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:roteiro/core.dart' show GeoPoint;
 
+import '../core/agendamentos_filtro.dart';
 import '../core/atendimento.dart';
 import '../core/atendimento_query.dart';
 import '../core/atendimento_statistics.dart';
@@ -55,32 +56,62 @@ class AtendimentoRepository {
     required int page,
     bool includeClientsWithoutService = true,
   }) async {
+    final onlyNotAttended =
+        query.agendamentos == AgendamentosFiltro.naoAtendidos;
+    final onlyAttended = query.agendamentos == AgendamentosFiltro.atendidos;
+
+    // "Não atendidos" é uma consulta única: o endpoint devolve a lista toda e
+    // não entende `skip`/`top`. A partir da 2ª página não há mais nada.
+    if (onlyNotAttended && page > 0) {
+      return const AtendimentoResult.success(AtendimentoPage.empty);
+    }
+
     final raw = <Map<String, dynamic>>[];
     var haveServices = false;
 
-    if (page == 0 &&
-        includeClientsWithoutService &&
+    final hasClientPeriod =
         query.clientParams().containsKey('codRepres') &&
-        query.clientParams().containsKey('dataInicial')) {
+            query.clientParams().containsKey('dataInicial');
+
+    // No modo "Não atendidos" o endpoint é a única fonte: basta o período
+    // (o representante é opcional na consulta).
+    final canCallClients = onlyNotAttended
+        ? query.clientParams().containsKey('dataInicial')
+        : hasClientPeriod;
+
+    // "Atendidos" não busca clientes sem atendimento; "Não atendidos" busca
+    // **só** eles.
+    if (page == 0 &&
+        !onlyAttended &&
+        canCallClients &&
+        (includeClientsWithoutService || onlyNotAttended)) {
       final clientsResponse =
           await api.getClientsWithoutService(query.clientParams());
+      if (!clientsResponse.success && onlyNotAttended) {
+        return AtendimentoResult.error(
+          clientsResponse.errorMessage ??
+              'Não foi possível carregar os clientes não atendidos.',
+        );
+      }
       if (clientsResponse.success && clientsResponse.body != null) {
         raw.addAll(_decodeList(clientsResponse.body!));
       }
     }
 
-    final response = await api.getServices(
-      query.serviceParams(page: page, pageSize: pageSize),
-    );
-    if (!response.success) {
-      return AtendimentoResult.error(
-        response.errorMessage ?? 'Não foi possível carregar os atendimentos.',
+    if (!onlyNotAttended) {
+      final response = await api.getServices(
+        query.serviceParams(page: page, pageSize: pageSize),
       );
-    }
+      if (!response.success) {
+        return AtendimentoResult.error(
+          response.errorMessage ?? 'Não foi possível carregar os atendimentos.',
+        );
+      }
 
-    final servicesJson = _decodeList(response.body ?? '');
-    if (servicesJson.isNotEmpty) haveServices = true;
-    raw.addAll(servicesJson);
+      final servicesJson = _decodeList(response.body ?? '');
+      if (servicesJson.isNotEmpty) haveServices = true;
+      raw.addAll(servicesJson);
+    }
 
     final services = <Atendimento>[];
     for (final json in raw) {

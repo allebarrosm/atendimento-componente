@@ -144,6 +144,68 @@ void main() {
     });
   });
 
+  group('AtendimentoStore agendamentos', () {
+    test('"Não atendidos" liga o interruptor de cliente sem agenda', () async {
+      final api = FakeApi(
+        pages: [],
+        clientsWithoutService: [
+          atendimentoJson(
+            id: 9,
+            situation: 'NaoVisitadoSemAgenda',
+            modality: null,
+          ),
+        ],
+      );
+      final store = buildStore(api);
+      await store.load();
+
+      expect(store.filter.showServices, isFalse);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+
+      expect(store.agendamentos, AgendamentosFiltro.naoAtendidos);
+      expect(store.filter.showServices, isTrue);
+      expect(store.rows, hasLength(1));
+      expect(store.hasMore, isFalse);
+    });
+
+    test('"Atendidos" não mexe no interruptor', () async {
+      final store = buildStore(FakeApi(pages: []));
+      await store.load();
+      final before = store.filter.showServices;
+
+      await store.load(agendamentosFilter: AgendamentosFiltro.atendidos);
+
+      expect(store.filter.showServices, before);
+      expect(store.agendamentos, AgendamentosFiltro.atendidos);
+    });
+
+    test('clientes sem atendimento (id 0) não são deduplicados', () async {
+      final api = FakeApi(
+        pages: [],
+        clientsWithoutService: [
+          atendimentoJson(id: 0, situation: 'NaoVisitadoSemAgenda'),
+          atendimentoJson(
+            id: 0,
+            codePerson: '200',
+            situation: 'NaoVisitadoSemAgenda',
+          ),
+        ],
+      );
+      final store = buildStore(api);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+
+      expect(store.rows, hasLength(2));
+    });
+  });
+
   group('AtendimentoStore filtros', () {
     test('setFilterSwitch recalcula lista, contadores e marcadores', () async {
       final api = FakeApi(
