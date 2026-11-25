@@ -12,10 +12,20 @@ class AtendimentoTheme {
 
   static const String _assetBase = 'packages/atendimento/assets/images';
 
-  static const Color scheduled = Color(0xFF2E86DE);
-  static const Color attended = Color(0xFF38D2C0);
+  /// Paleta do BackOffice (a mesma dos cards/botões antigos).
+  static const Color primary = Color(0xFFFF8C01);
+  static const Color blue = Colors.blue;
+  static const Color green = Colors.green;
+  static const Color red = Colors.red;
+
+  static const Color scheduled = primary;
+  static const Color attended = green;
   static const Color notAttended = Color(0xFFF2A785);
   static const Color remote = Color(0xFFF2A785);
+
+  /// Cards brancos com borda preta (painel e legenda do Web).
+  static const Color boxFill = Colors.white;
+  static const Color boxBorder = Colors.black;
 
   /// Ícone da situação do cliente (marcador e filtro).
   static String assetForSituation(AtendimentoSituacao? situacao) {

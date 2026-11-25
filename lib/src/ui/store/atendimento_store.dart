@@ -33,7 +33,10 @@ abstract class AtendimentoStoreBase with Store {
     this.onError,
     AtendimentoMarkerFactory? markerFactory,
     this.titleFactory = const AtendimentoTitleFactory(),
-  }) : markerFactory = markerFactory ?? AtendimentoMarkerFactory();
+  })  : markerFactory = markerFactory ?? AtendimentoMarkerFactory(),
+        // No Web a edição já nasce ligada (o BackOffice não tem mais o botão
+        // de "Alterar coordenadas"); no Android nasce desligada.
+        coordinateEditing = enableCoordinateEditing;
 
   final AtendimentoRepository repository;
 
@@ -147,7 +150,7 @@ abstract class AtendimentoStoreBase with Store {
   // ------------------------------------------------- alteração de coordenada
 
   @observable
-  bool coordinateEditing = false;
+  bool coordinateEditing;
 
   @observable
   Atendimento? editing;
@@ -505,8 +508,12 @@ abstract class AtendimentoStoreBase with Store {
         Marker(
           markerId: markerId,
           position: position,
+          // O pino mantém o ícone da situação mesmo no modo de edição; só o
+          // cliente que está sendo editado ganha o ícone de alvo.
           icon: await _iconOrFallback(
-            markerFactory.forClient(atendimento, editing: coordinateEditing),
+            isEditing
+                ? markerFactory.coordinateSelectedIcon
+                : markerFactory.forClient(atendimento),
           ),
           zIndexInt: isEditing ? 1000 : 0,
           draggable: coordinateEditing && !savingCoordinate,

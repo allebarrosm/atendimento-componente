@@ -4,7 +4,12 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:roteiro/ui.dart'
-    show RoteiroDetailsCard, RoteiroInfoWindowData, RoteiroMap, RoteiroMapButton, RoteiroMapController;
+    show
+        RoteiroDetailsCard,
+        RoteiroInfoWindowData,
+        RoteiroMap,
+        RoteiroMapButton,
+        RoteiroMapController;
 
 import '../core/atendimento.dart';
 import '../core/atendimento_format.dart';
@@ -12,7 +17,7 @@ import 'store/atendimento_store.dart';
 import 'widgets/atendimento_card.dart';
 import 'widgets/atendimento_filter_panel.dart';
 import 'widgets/atendimento_grid.dart';
-import 'widgets/atendimento_legend.dart';
+import 'widgets/atendimento_legend_bar.dart';
 import 'widgets/atendimento_stats_panel.dart';
 import 'widgets/coordinate_editor_bar.dart';
 
@@ -38,7 +43,6 @@ class AtendimentoBody extends StatefulWidget {
     required this.store,
     this.layout,
     this.gridBuilder,
-    this.showLegend = true,
     this.enableStreetView = true,
     this.initialZoom = 5,
   });
@@ -52,7 +56,6 @@ class AtendimentoBody extends StatefulWidget {
   final Widget Function(BuildContext context, List<Atendimento> rows)?
       gridBuilder;
 
-  final bool showLegend;
   final bool enableStreetView;
   final double initialZoom;
 
@@ -117,14 +120,25 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (context) {
-        if (widget.store.loading && widget.store.clients.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return switch (_layout) {
+        final body = switch (_layout) {
           AtendimentoLayout.mobile => _buildMobile(context),
           AtendimentoLayout.web => _buildWeb(context),
         };
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            body,
+            // O mapa nunca sai da tela: o carregamento é só uma faixa no topo.
+            if (widget.store.loading)
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
+          ],
+        );
       },
     );
   }
@@ -136,10 +150,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
 
     return Stack(
       children: [
-        if (widget.store.isMap)
-          _buildMap(context)
-        else
-          _buildList(context),
+        if (widget.store.isMap) _buildMap(context) else _buildList(context),
         if (error != null)
           Positioned(
             top: 8,
@@ -242,40 +253,53 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
 
   Widget _buildWeb(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 30, right: 20, top: 5, bottom: 55),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      padding: const EdgeInsets.only(left: 30, right: 20, top: 5),
+      child: Stack(
         children: [
-          Expanded(
-            flex: 3,
-            child: widget.store.isMap
-                ? _buildMap(context)
-                : (widget.gridBuilder?.call(context, widget.store.rows) ??
-                    AtendimentoGrid(
-                      rows: widget.store.rows,
-                      onRowTap: (atendimento) {
-                        widget.store.select(atendimento);
-                        widget.store.setMap(true);
-                      },
-                      loadingMore: widget.store.loadingMore,
-                      onLoadMore: widget.store.hasMore
-                          ? widget.store.loadMore
-                          : null,
-                    )),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 55),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: widget.store.isMap
+                      ? _buildMap(context)
+                      : (widget.gridBuilder?.call(
+                              context, widget.store.rows) ??
+                          AtendimentoGrid(
+                            rows: widget.store.rows,
+                            onRowTap: (atendimento) {
+                              widget.store.select(atendimento);
+                              widget.store.setMap(true);
+                            },
+                            loadingMore: widget.store.loadingMore,
+                            onLoadMore: widget.store.hasMore
+                                ? widget.store.loadMore
+                                : null,
+                          )),
+                ),
+                const SizedBox(width: 10),
+                AtendimentoStatsPanel(
+                  statistics: widget.store.statistics,
+                  counters: widget.store.counters,
+                  isMap: widget.store.isMap,
+                  showClient: widget.store.showClient,
+                  onToggleMap: () =>
+                      widget.store.setMap(!widget.store.isMap),
+                  onShowClient: widget.store.setShowClient,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: 10),
-          AtendimentoStatsPanel(
-            statistics: widget.store.statistics,
-            counters: widget.store.counters,
-            isMap: widget.store.isMap,
-            showClient: widget.store.showClient,
-            onToggleMap: () => widget.store.setMap(!widget.store.isMap),
-            onShowClient: widget.store.setShowClient,
-            onLoadMore: widget.store.hasMore ? widget.store.loadMore : null,
-            loadingMore: widget.store.loadingMore,
-            canEditCoordinate: widget.store.enableCoordinateEditing,
-            coordinateEditing: widget.store.coordinateEditing,
-            onToggleCoordinateEditing: widget.store.setCoordinateEditing,
+          // Barra de legenda/filtros, embaixo do mapa (como no BackOffice).
+          Positioned(
+            left: 0,
+            bottom: 0,
+            child: AtendimentoLegendBar(
+              filter: widget.store.filter,
+              onToggleSwitch: widget.store.setFilterSwitch,
+            ),
           ),
         ],
       ),
@@ -304,13 +328,19 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
               : RoteiroInfoWindowData(
                   title: selected.displayName,
                   subtitle: selected.address,
-                  rows: selected.toViewRows(compact: _layout == AtendimentoLayout.mobile),
+                  rows: selected.toViewRows(
+                    compact: _layout == AtendimentoLayout.mobile,
+                  ),
                 ),
           onCloseInfoWindow: store.clearSelection,
-          detailsCard: selected == null ? null : _detailsCard(context, selected),
+          detailsCard:
+              selected == null ? null : _detailsCard(context, selected),
           showDetailsCard: selected != null,
           onCloseDetails: store.clearSelection,
-          showStreetViewButton: widget.enableStreetView,
+          // No Web os botões de mapa/Street View viram as pílulas do topo.
+          showMapTypeButton: _layout == AtendimentoLayout.mobile,
+          showStreetViewButton:
+              _layout == AtendimentoLayout.mobile && widget.enableStreetView,
           customButton: _layout == AtendimentoLayout.mobile
               ? RoteiroMapButton(
                   icon: Icons.arrow_back,
@@ -328,17 +358,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
               : null,
           onMapTap: (_) => store.clearSelection(),
         ),
-        if (_layout == AtendimentoLayout.web && showLegendPlaceholder)
-          const Positioned(
-            left: 12,
-            bottom: 90,
-            child: Card(
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: AtendimentoLegend(compact: true),
-              ),
-            ),
-          ),
+        if (_layout == AtendimentoLayout.web) _buildMapPills(context),
         if (store.canEditCoordinate && store.editing != null)
           Positioned(
             left: 12,
@@ -350,9 +370,75 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
     );
   }
 
-  /// A legenda do Web ocupa o canto inferior esquerdo do mapa.
-  bool get showLegendPlaceholder =>
-      widget.showLegend && _layout == AtendimentoLayout.web;
+  /// Pílulas "Satélite" e "StreetView" no topo do mapa (layout do BackOffice).
+  Widget _buildMapPills(BuildContext context) {
+    final target = widget.store.streetViewCoord;
+
+    return Positioned(
+      top: 12,
+      left: 0,
+      right: 0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _pill(
+            label: _mapController.isNormalType ? 'Satélite' : 'Mapa',
+            onTap: _mapController.toggleMapType,
+          ),
+          const SizedBox(width: 10),
+          _pill(
+            label: 'StreetView',
+            icon: Icons.streetview,
+            filled: true,
+            onTap: target == null
+                ? null
+                : () => _mapController.openStreetView(target),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _pill({
+    required String label,
+    IconData? icon,
+    bool filled = false,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: filled ? const Color(0xFF7A7A7A) : Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 18,
+                  color: filled ? Colors.white : Colors.black,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: filled ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _detailsCard(BuildContext context, Atendimento selected) {
     final store = widget.store;
@@ -369,16 +455,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           LatLng(coord.latitude, coord.longitude),
         );
       },
-      child: store.enableCoordinateEditing
-          ? Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: () => store.startCoordinateEdit(selected),
-                icon: const Icon(Icons.edit_location_alt_outlined, size: 18),
-                label: const Text('Alterar coordenada'),
-              ),
-            )
-          : null,
     );
   }
 }

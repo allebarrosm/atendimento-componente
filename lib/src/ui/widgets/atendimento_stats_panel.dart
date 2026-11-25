@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../core/atendimento_format.dart';
 import '../../core/atendimento_statistics.dart';
+import '../theme/atendimento_theme.dart';
 
 /// Painel lateral do Web — reproduz o `InformationViewWithMap` do BackOffice.
+///
+/// Cards brancos com borda preta, botão Grid/Mapa do mesmo tamanho e as cores
+/// dos ícones iguais às do app.
 class AtendimentoStatsPanel extends StatelessWidget {
   const AtendimentoStatsPanel({
     super.key,
@@ -13,11 +16,6 @@ class AtendimentoStatsPanel extends StatelessWidget {
     required this.showClient,
     required this.onToggleMap,
     required this.onShowClient,
-    this.onLoadMore,
-    this.loadingMore = false,
-    this.canEditCoordinate = false,
-    this.coordinateEditing = false,
-    this.onToggleCoordinateEditing,
     this.width = 180,
   });
 
@@ -30,14 +28,6 @@ class AtendimentoStatsPanel extends StatelessWidget {
   final VoidCallback onToggleMap;
   final void Function(bool value) onShowClient;
 
-  final VoidCallback? onLoadMore;
-  final bool loadingMore;
-
-  /// Alteração de coordenada só existe no Web.
-  final bool canEditCoordinate;
-  final bool coordinateEditing;
-  final void Function(bool value)? onToggleCoordinateEditing;
-
   final double width;
 
   @override
@@ -48,61 +38,36 @@ class AtendimentoStatsPanel extends StatelessWidget {
       width: width,
       child: Column(
         children: [
-          SizedBox(
-            width: width,
-            height: 32,
-            child: OutlinedButton(
-              onPressed: onToggleMap,
-              child: Text(isMap ? 'Grid' : 'Mapa'),
-            ),
-          ),
-          const SizedBox(height: 4),
-          _box(
-            context,
-            [
-              _info(context, 'Atendimentos', Icons.handshake, stats.grandTotal),
-              _info(context, 'Vendas', Icons.thumb_up, stats.totalSales),
-              _info(context, 'Sem Vendas', Icons.thumb_down, stats.totalNoSales),
-              _info(context, 'Orçamento', Icons.description, stats.totalBudget),
-              _info(context, 'Presencial', Icons.person, stats.totalOnsite),
-              _info(
-                context,
-                'Remotas',
-                Icons.settings_remote,
-                stats.totalRemote,
-              ),
-            ],
-          ),
-          _box(
-            context,
-            [
-              _info(context, 'Agenda', Icons.event, counters.scheduled),
-              _info(
-                context,
-                'Atendidos',
-                Icons.event_available,
-                counters.visited,
-              ),
-              _info(
-                context,
-                'Não Atendidos',
-                Icons.event_busy_rounded,
-                counters.notVisited,
-              ),
-            ],
-          ),
+          _toggleButton(),
+          _box([
+            _info('Atendimentos', Icons.handshake, AtendimentoTheme.primary,
+                stats.grandTotal),
+            _info('Vendas', Icons.thumb_up, AtendimentoTheme.green,
+                stats.totalSales),
+            _info('Sem Vendas', Icons.thumb_down, AtendimentoTheme.red,
+                stats.totalNoSales),
+            _info('Orçamento', Icons.description, AtendimentoTheme.blue,
+                stats.totalBudget),
+            _info('Presencial', Icons.person, AtendimentoTheme.blue,
+                stats.totalOnsite),
+            _info('Remotas', Icons.settings_remote, AtendimentoTheme.blue,
+                stats.totalRemote),
+          ]),
+          _box([
+            _info('Agenda', Icons.event, AtendimentoTheme.primary,
+                counters.scheduled == 0 ? null : counters.scheduled),
+            _info('Atendidos', Icons.event_available, AtendimentoTheme.green,
+                counters.visited == 0 ? null : counters.visited),
+            _info('Não Atendidos', Icons.event_busy_rounded,
+                AtendimentoTheme.red,
+                counters.notVisited == 0 ? null : counters.notVisited),
+          ]),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.only(left: 5, right: 12),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    'Nome Cliente',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
+                const Expanded(
+                  child: Text('Nome Cliente', style: TextStyle(fontSize: 13)),
                 ),
                 Switch(
                   value: showClient,
@@ -111,91 +76,75 @@ class AtendimentoStatsPanel extends StatelessWidget {
               ],
             ),
           ),
-          if (canEditCoordinate && onToggleCoordinateEditing != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Alterar coordenadas',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  Switch(
-                    value: coordinateEditing,
-                    onChanged: onToggleCoordinateEditing,
-                  ),
-                ],
-              ),
-            ),
-          if (onLoadMore != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: SizedBox(
-                width: width,
-                height: 30,
-                child: OutlinedButton(
-                  onPressed: loadingMore ? null : onLoadMore,
-                  child: loadingMore
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Carregar mais'),
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
 
-  Widget _box(BuildContext context, List<Widget> items) {
+  /// Botão Grid/Mapa: mesma caixa branca com borda preta do BackOffice.
+  Widget _toggleButton() {
+    return InkWell(
+      onTap: onToggleMap,
+      child: Container(
+        height: 56,
+        margin: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: AtendimentoTheme.boxFill,
+          border: Border.all(color: AtendimentoTheme.boxBorder),
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          isMap ? 'Grid' : 'Mapa',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _box(List<Widget> items) {
     return Container(
       width: width,
       padding: const EdgeInsets.all(5),
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-        ),
+        color: AtendimentoTheme.boxFill,
+        border: Border.all(color: AtendimentoTheme.boxBorder),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
-        color: Theme.of(context).colorScheme.surface,
       ),
       child: Column(children: items),
     );
   }
 
-  Widget _info(BuildContext context, String title, IconData icon, int value) {
-    final scheme = Theme.of(context).colorScheme;
+  Widget _info(String title, IconData icon, Color color, int? value) {
     return Row(
       children: [
         SizedBox(
           width: 92,
           child: Text(
             title,
-            style: TextStyle(fontSize: 12, color: scheme.onSurface),
+            style: const TextStyle(fontSize: 13, color: Colors.black),
             overflow: TextOverflow.ellipsis,
           ),
         ),
         SizedBox(
-          width: 44,
+          width: 50,
           child: Text(
-            formatCount(value),
+            value == null ? '-' : '$value',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: scheme.onSurface,
+              fontSize: 18,
+              color: Colors.black,
             ),
           ),
         ),
-        Icon(icon, size: 16, color: scheme.primary),
+        Icon(icon, size: 16, color: color),
       ],
     );
   }

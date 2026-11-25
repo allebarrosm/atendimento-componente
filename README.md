@@ -10,8 +10,9 @@ grade, estatísticas e alteração de coordenada.
   cards + painel de filtros inferior).
 - **Web** → layout do **BackOffice** (mapa/grade + painel lateral de números +
   grade com as 11 colunas do BackOffice).
-- **Alteração de coordenada só no Web** (`enableCoordinateEditing`), com arrastar
-  do pino, geocodificação por endereço e `Salvar/Cancelar`.
+- **Alteração de coordenada sempre ativa no Web** (`enableCoordinateEditing`),
+  com arrastar do pino, geocodificação por endereço e `Salvar/Cancelar` — sem
+  botão de ligar/desligar. No Android fica sempre inativa.
 - O `roteiro` já resolvido é reaproveitado para o mapa (`RoteiroMap`),
   `InfoWindow` e `DetailsCard` — o pacote não reimplementa a camada de mapa.
 
@@ -143,32 +144,29 @@ O layout do Gestão aparece por padrão; a alteração de coordenada fica deslig
 
 ### Dependência
 
-Enquanto o repositório do pacote não existe, use path:
-
-```yaml
-dependencies:
-  atendimento:
-    path: ../atendimento
-```
-
-Depois, a ideia é tag + Git (igual ao `roteiro`):
+O pacote é consumido por Git, com o commit fixado — o mesmo padrão do `roteiro`:
 
 ```yaml
 dependencies:
   atendimento:
     git:
       url: https://github.com/allebarrosm/atendimento-componente
-      ref: v0.1.0
+      ref: 6d0b93bce4e7cd43a2359ec6d96386ba06f180f4
 ```
 
-O pacote já depende do **mesmo ref do `roteiro`** que os apps usam, então o pub
+**Gestão e BackOffice já estão configurados assim.** Para atualizar o pacote,
+basta trocar o `ref` por um commit/tag novo e rodar `flutter pub get`.
+
+O pacote depende do **mesmo ref do `roteiro`** que os apps usam, então o pub
 trata como a mesma origem e não é preciso `dependency_overrides`. Para
-desenvolver os dois juntos, use `pubspec_overrides.yaml`:
+desenvolver os dois juntos, crie um `pubspec_overrides.yaml`:
 
 ```yaml
 dependency_overrides:
   roteiro:
     path: ../roteiro
+  atendimento:
+    path: ../atendimento
 ```
 
 ### 1. Implemente o transporte (uma vez por app)
@@ -179,8 +177,7 @@ O pacote não fala HTTP. Cada app adapta o seu `ServiceRemoteDataSource`.
 - `Gestao/lib/src/screens/monitoramento/atendimento/infra/atendimento_api_gestao.dart`
 - `BackOffice/lib/infra/repositores/service/atendimento_api_backoffice.dart`
 
-e os dois `pubspec.yaml` já declaram `atendimento: path: ../atendimento`. O
-exemplo abaixo é o mesmo código, para referência:
+O exemplo abaixo é o mesmo código, para referência:
 
 ```dart
 class GestaoAtendimentoApi implements AtendimentoApi {
@@ -285,15 +282,16 @@ filtro de período/representante, chamando `store.load(...)` como hoje.
 
 ### 4. Alteração de coordenada (Web)
 
-Ligada por `enableCoordinateEditing: kIsWeb`. O fluxo:
+Ligada por `enableCoordinateEditing: kIsWeb`, **sem botão de alternar**: no Web
+já nasce ativa, no Android nunca é possível alterar. O fluxo:
 
-1. o painel lateral mostra o switch **Alterar coordenadas**;
-2. os pinos de cliente ficam arrastáveis (com ícone de alvo);
-3. ao arrastar (ou clicar em **Alterar coordenada** no card), abre a barra sobre
-   o mapa com endereço, coordenada e **Salvar/Cancelar**;
+1. os pinos de cliente ficam arrastáveis e mantêm o ícone da situação;
+2. ao arrastar um pino, abre a barra sobre o mapa com endereço, coordenada e
+   **Salvar/Cancelar** (o mapa continua interativo);
+3. o botão **Localizar** geocodifica o endereço digitado;
 4. `Salvar` chama `POST /api/endereco/cordenadas` e atualiza a lista/marcadores.
 
-No Android o switch não aparece e `saveCoordinate()` é bloqueado.
+No Android `saveCoordinate()` é bloqueado e os pinos não arrastam.
 
 ---
 
@@ -302,8 +300,8 @@ No Android o switch não aparece e `saveCoordinate()` é bloqueado.
 | Tema | Decisão |
 |---|---|
 | Escopo | só Gestão + BackOffice (EASYMART registra, não monitora) |
-| Layout | Android = Gestão; Web = BackOffice (detectado por `kIsWeb`) |
-| Edição de coordenada | **somente Web**, via `enableCoordinateEditing` |
+| Layout | Android = Gestão; Web = BackOffice (detectado por `kIsWeb`), com a barra de legenda/filtros embaixo do mapa |
+| Edição de coordenada | **sempre ativa no Web**, sempre bloqueada no Android (sem botão) |
 | Estado | MobX (como os apps) |
 | Mapa | reaproveita `RoteiroMap` do pacote `roteiro` |
 | Filtro | situação **e** modalidade; "fora do cliente" é categoria própria |
@@ -329,11 +327,30 @@ No Android o switch não aparece e `saveCoordinate()` é bloqueado.
   `roteiro` declara. Ao migrar a tela, vale regenerar o lock
   (`flutter pub get`) para alinhar com `latlong2 0.9.x` e `core 1.2.x`.
 
+## Migração (feita)
+
+As duas telas já usam o pacote:
+
+- **Gestão** (`AtendimentoView`): renderiza `AtendimentoBody(layout: mobile)`.
+  O app mantém o diálogo de período/representante (`FilterAtendimento`), que
+  agora chama `store.load(...)`, e o atalho da barra para os interruptores.
+- **BackOffice** (`MonitoringPage`): a aba de atendimento usa
+  `AtendimentoBody(layout: web)` com a grade Syncfusion injetada por
+  `gridBuilder` (`AtendimentoGridSync`), mantendo as 11 colunas e a exportação.
+
+Removidos dos apps (agora vivem aqui): `ServiceData`, `ServiceStatisticData`,
+`ClientCoordinateData`, `ServiceRepositoryImpl`, `GetAllServices`, os stores
+antigos (`AtendimentoStore` do Gestão, `GridViewWithMapStore` +
+`VariablesStore` do BackOffice), os cards/filtros/painel de estatísticas e as
+cópias de `toJsonView`/`filterText`/`getIcon`.
+
+O que continua no app: transporte HTTP (`ServiceRemoteDataSource`), diálogo de
+filtro de período/representante, exportação Excel do BackOffice e o cabeçalho
+das páginas.
+
 ## Próximos passos sugeridos
 
-1. Publicar o pacote em repositório próprio e consumir por tag nos dois apps.
-2. Migrar a tela do **Gestão** primeiro (é a mais simples: sem drag).
-3. Migrar o **BackOffice**, injetando o `GridSync` e o exportador de planilha.
-4. Remover dos apps: `ServiceData`, `ServiceStatisticData`,
-   `ServiceRepositoryImpl`, `AtendimentoStore`, `GridViewWithMapStore` e
-   `VariablesStore` — o que sobrar deles é só o app.
+1. Trocar o `ref` do Git nos dois `pubspec.yaml` conforme o pacote evoluir.
+2. No BackOffice, regenerar o `pubspec.lock` para alinhar `latlong2` e
+   `flutter_floating_map_marker_titles_core` com o que o `roteiro` declara.
+3. Levar o teste de integração do mapa (chave/dispositivo) para o CI.

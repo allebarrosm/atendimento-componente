@@ -318,7 +318,7 @@ void main() {
       expect(store.errorMessage, isNotNull);
     });
 
-    test('sem o modo ligado a gravação é bloqueada', () async {
+    test('com a edição desligada a gravação é bloqueada', () async {
       final api = FakeApi(
         pages: [
           [atendimentoJson(id: 1)],
@@ -326,6 +326,9 @@ void main() {
       );
       final store = buildStore(api);
       await store.load();
+
+      // No Web a edição já nasce ligada; aqui desligamos de propósito.
+      await store.setCoordinateEditing(false);
       store.startCoordinateEdit(store.services.first);
       store.moveEditingCoordinate(const LatLng(-9.0, -35.0));
 
@@ -333,6 +336,13 @@ void main() {
 
       expect(saved, isFalse);
       expect(api.updates, isEmpty);
+    });
+
+    test('edição já nasce ligada quando permitida (Web)', () async {
+      final store = buildStore(FakeApi(pages: []));
+
+      expect(store.coordinateEditing, isTrue);
+      expect(store.canEditCoordinate, isTrue);
     });
   });
 

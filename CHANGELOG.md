@@ -41,3 +41,23 @@ BackOffice.
 - 68 testes (núcleo, repositório, store e fábrica de títulos).
 - `flutter analyze` limpo.
 - `flutter build web` do `example` OK.
+
+## 0.1.1 — 2025-11-25
+
+Ajustes de layout para ficar idêntico ao BackOffice no Web.
+
+### Web
+- Barra de legenda/filtros embaixo do mapa com os 7 checkboxes (ícone + rótulo),
+  no lugar do painel sobreposto.
+- Painel lateral no estilo do BackOffice: botão **Grid/Mapa** branco com borda
+  preta (56px), cards brancos com borda preta e ícones nas cores do app.
+- Pílulas **Satélite** e **StreetView** no topo do mapa.
+- **Alteração de coordenada sempre ativa** (sem botão/switch): arrastar o pino
+  abre a barra de endereço/coordenada com Salvar/Cancelar. No Android continua
+  sempre inativa.
+- O mapa **não sai mais da tela** ao aplicar um filtro: o carregamento virou uma
+  faixa de progresso no topo.
+
+### Correções
+- Pinos de cliente mantêm o ícone da situação no modo de edição; só o cliente
+  em edição usa o ícone de alvo.
