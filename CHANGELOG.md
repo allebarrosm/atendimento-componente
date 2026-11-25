@@ -101,3 +101,10 @@ Ajustes do mobile.
 
 - Sem atendimentos, a tela não exibe mais a mensagem "Selecione as opções no
   filtro para exibir os atendimentos": lista e grade ficam simplesmente vazias.
+
+## 0.1.6 — 2025-11-25
+
+- Pinos do mapa no mobile: o do cliente (situação) passou de 25 para 30px e o
+  do atendimento (presencial/remoto/fora do cliente) de 25 para 22px. Como o
+  pino do atendimento é desenhado por cima, menorzinho ele deixa o de trás
+  visível. No Web os tamanhos continuam 25/25.

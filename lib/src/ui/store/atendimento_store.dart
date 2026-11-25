@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_floating_map_marker_titles_core/model/floating_marker_title_info.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -33,7 +34,13 @@ abstract class AtendimentoStoreBase with Store {
     this.onError,
     AtendimentoMarkerFactory? markerFactory,
     this.titleFactory = const AtendimentoTitleFactory(),
-  })  : markerFactory = markerFactory ?? AtendimentoMarkerFactory(),
+  })  : markerFactory = markerFactory ??
+            AtendimentoMarkerFactory(
+              // No mobile o pino do cliente fica um pouco maior; o do
+              // atendimento (que é desenhado por cima) um pouco menor.
+              clientIconSize: kIsWeb ? 25 : 30,
+              serviceIconSize: kIsWeb ? 25 : 22,
+            ),
         // No Web a edição já nasce ligada (o BackOffice não tem mais o botão
         // de "Alterar coordenadas"); no Android nasce desligada.
         coordinateEditing = enableCoordinateEditing;
