@@ -166,4 +166,4 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - Testes com a fixture real (`test/support/clientes_sem_atendimento.dart`):
   550 linhas carregadas, coordenadas com espaço no fim sendo lidas, "Vazio" e
   "Não Atendidos" com 550 linhas/22 pinos, "Atendidos" sem chamar o endpoint.
-  91 testes no total.
+  92 testes no total.

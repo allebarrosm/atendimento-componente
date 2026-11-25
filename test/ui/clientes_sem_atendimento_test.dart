@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/clientes_sem_atendimento.dart';
 import '../support/fake_api.dart';
+import '../support/fixtures.dart';
 
 /// Testes com o retorno real de `GetClientesSemAtendimento`: 22 clientes
 /// repetidos em 25 dias (550 linhas), todos `NaoVisitadoSemAgenda`, sem
@@ -135,6 +136,25 @@ void main() {
       expect(store.rows, hasLength(550));
       expect(store.markers, hasLength(22));
       expect(store.hasMore, isFalse);
+    });
+  });
+
+  group('"Vazio" com atendimentos e clientes sem atendimento juntos', () {
+    test('soma as duas listas, sem perder dia nem pino', () async {
+      final api = FakeApi(
+        pages: [
+          [atendimentoJson(id: 1, codePerson: '999')],
+        ],
+        clientsWithoutService: clientesSemAtendimentoJson(),
+        statistics: const <String, dynamic>{'TotalGeral': 1},
+      );
+      final store = buildStore(api);
+
+      await store.load(start: inicio, end: fim);
+
+      expect(store.rows, hasLength(551));
+      // 22 clientes sem atendimento + o cliente do atendimento.
+      expect(store.markers, hasLength(23));
     });
   });
 
