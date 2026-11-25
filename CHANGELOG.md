@@ -132,3 +132,14 @@ Ajustes do mobile.
 - No modo "Não Atendidos" o interruptor "Cliente sem agenda" é ligado
   automaticamente para a lista/mapa não virem vazios.
 - Clientes sem atendimento (id 0) não são mais deduplicados na lista.
+
+## 0.1.10 — 2025-11-25
+
+- Consulta mais rápida: `GetOData` e `GetClientesSemAtendimento` agora saem em
+  **paralelo** e a tela vai sendo plotada conforme cada parte chega — os
+  atendimentos aparecem antes dos clientes sem atendimento (que costumam ser a
+  chamada mais demorada).
+- No modo "Vazio" o `GetClientesSemAtendimento` continua sendo chamado junto com
+  o `GetOData`, e agora basta ter período (representante é opcional).
+- `AtendimentoRepository.fetchClientsWithoutService` público para o store
+  disparar essa busca em paralelo.

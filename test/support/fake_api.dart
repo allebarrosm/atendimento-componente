@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:atendimento/data.dart';
@@ -12,6 +13,7 @@ class FakeApi implements AtendimentoApi {
     this.failServices = false,
     this.failClients = false,
     this.failUpdate = false,
+    this.clientsGate,
   });
 
   final List<List<Map<String, dynamic>>> pages;
@@ -21,6 +23,10 @@ class FakeApi implements AtendimentoApi {
   final bool failServices;
   final bool failClients;
   final bool failUpdate;
+
+  /// Segura a resposta de "clientes sem atendimento" até ser completado
+  /// (usado para provar que os atendimentos são plotados antes).
+  final Completer<void>? clientsGate;
 
   final List<Map<String, String>> updates = [];
   int clientCalls = 0;
@@ -51,6 +57,7 @@ class FakeApi implements AtendimentoApi {
   ) async {
     clientCalls++;
     lastClientParams = params;
+    if (clientsGate != null) await clientsGate!.future;
     if (failClients) {
       return const AtendimentoResponse.failure('falha de clientes');
     }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:atendimento/atendimento.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -201,6 +203,38 @@ void main() {
         start: period,
         agendamentosFilter: AgendamentosFiltro.naoAtendidos,
       );
+
+      expect(store.rows, hasLength(2));
+    });
+  });
+
+  group('AtendimentoStore carregamento progressivo', () {
+    test('plota os atendimentos antes de chegarem os clientes', () async {
+      final gate = Completer<void>();
+      final api = FakeApi(
+        pages: [
+          [atendimentoJson(id: 1)],
+        ],
+        clientsWithoutService: [
+          atendimentoJson(
+            id: 2,
+            codePerson: '200',
+            situation: 'VisitadoSemAgenda',
+          ),
+        ],
+        clientsGate: gate,
+      );
+      final store = buildStore(api);
+
+      final loading = store.load(start: period);
+
+      // Dá tempo de a 1ª página chegar e ser plotada.
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(store.loading, isTrue);
+      expect(store.rows, hasLength(1), reason: 'só os atendimentos já vieram');
+
+      gate.complete();
+      await loading;
 
       expect(store.rows, hasLength(2));
     });

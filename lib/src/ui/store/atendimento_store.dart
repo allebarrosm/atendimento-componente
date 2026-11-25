@@ -261,35 +261,67 @@ abstract class AtendimentoStoreBase with Store {
     page = 0;
 
     try {
-      final stats = await repository.fetchStatistics(query);
-      statistics = stats.isSuccess
-          ? stats.value
-          : AtendimentoStatistics.empty;
+      // Estatísticas e clientes sem atendimento correm em paralelo com os
+      // atendimentos; a tela vai sendo plotada conforme cada um chega.
+      final statsFuture = repository.fetchStatistics(query);
+
+      final wantsClients = agendamentos != AgendamentosFiltro.atendidos &&
+          query.clientParams().containsKey('dataInicial');
+      final clientsFuture = wantsClients
+          ? repository.fetchClientsWithoutService(query)
+          : null;
 
       clients.clear();
       services.clear();
       visibleClients.clear();
       haveServices = false;
 
-      var finished = false;
-      while (!finished) {
-        final result = await repository.fetchPage(query: query, page: page);
-        if (!result.isSuccess) {
-          _fail(result.errorMessage ?? 'Falha ao carregar atendimentos.');
-          return;
+      if (agendamentos != AgendamentosFiltro.naoAtendidos) {
+        var finished = false;
+        while (!finished) {
+          final result = await repository.fetchPage(
+            query: query,
+            page: page,
+            // Os clientes sem atendimento entram no fim, pelo futuro acima.
+            includeClientsWithoutService: false,
+          );
+          if (!result.isSuccess) {
+            _fail(result.errorMessage ?? 'Falha ao carregar atendimentos.');
+            break;
+          }
+
+          final data = result.value!;
+          haveServices = haveServices || data.haveServices;
+          clients.addAll(data.services);
+          page++;
+
+          // Plota já a página que chegou.
+          await _rebuild();
+
+          finished = data.services.isEmpty ||
+              data.services.length < repository.pageSize ||
+              page >= repository.maxPagesPerLoad;
         }
-
-        final data = result.value!;
-        haveServices = haveServices || data.haveServices;
-        clients.addAll(data.services);
-        page++;
-
-        finished = data.services.isEmpty ||
-            data.services.length < repository.pageSize ||
-            page >= repository.maxPagesPerLoad;
       }
 
-      await _rebuild();
+      if (clientsFuture != null) {
+        final clientsResult = await clientsFuture;
+        if (!clientsResult.isSuccess) {
+          if (agendamentos == AgendamentosFiltro.naoAtendidos) {
+            _fail(
+              clientsResult.errorMessage ??
+                  'Falha ao carregar os clientes não atendidos.',
+            );
+          }
+        } else {
+          clients.addAll(clientsResult.value!);
+          await _rebuild();
+        }
+      }
+
+      final stats = await statsFuture;
+      statistics =
+          stats.isSuccess ? stats.value : AtendimentoStatistics.empty;
     } finally {
       loading = false;
     }

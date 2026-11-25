@@ -79,14 +79,25 @@ class AtendimentoRepository {
         ? query.clientParams().containsKey('dataInicial')
         : hasClientPeriod;
 
-    // "Atendidos" não busca clientes sem atendimento; "Não atendidos" busca
-    // **só** eles.
-    if (page == 0 &&
+    final callClients = page == 0 &&
         !onlyAttended &&
         canCallClients &&
-        (includeClientsWithoutService || onlyNotAttended)) {
-      final clientsResponse =
-          await api.getClientsWithoutService(query.clientParams());
+        (includeClientsWithoutService || onlyNotAttended);
+
+    // As duas chamadas saem juntas: o tempo total passa a ser o da mais lenta
+    // (o endpoint de clientes sem atendimento costuma ser a mais demorada).
+    final clientsFuture =
+        callClients ? api.getClientsWithoutService(query.clientParams()) : null;
+    final servicesFuture = !onlyNotAttended
+        ? api.getServices(query.serviceParams(page: page, pageSize: pageSize))
+        : null;
+
+    final clientsResponse =
+        clientsFuture == null ? null : await clientsFuture;
+    final servicesResponse =
+        servicesFuture == null ? null : await servicesFuture;
+
+    if (clientsResponse != null) {
       if (!clientsResponse.success && onlyNotAttended) {
         return AtendimentoResult.error(
           clientsResponse.errorMessage ??
@@ -98,17 +109,15 @@ class AtendimentoRepository {
       }
     }
 
-    if (!onlyNotAttended) {
-      final response = await api.getServices(
-        query.serviceParams(page: page, pageSize: pageSize),
-      );
-      if (!response.success) {
+    if (servicesResponse != null) {
+      if (!servicesResponse.success) {
         return AtendimentoResult.error(
-          response.errorMessage ?? 'Não foi possível carregar os atendimentos.',
+          servicesResponse.errorMessage ??
+              'Não foi possível carregar os atendimentos.',
         );
       }
 
-      final servicesJson = _decodeList(response.body ?? '');
+      final servicesJson = _decodeList(servicesResponse.body ?? '');
       if (servicesJson.isNotEmpty) haveServices = true;
       raw.addAll(servicesJson);
     }
@@ -132,6 +141,28 @@ class AtendimentoRepository {
         haveServices: haveServices,
       ),
     );
+  }
+
+  /// Busca só os clientes que deveriam ter sido atendidos e não foram.
+  ///
+  /// É a chamada mais demorada da consulta; fica pública para o store disparar
+  /// em paralelo com os atendimentos e plotar cada parte assim que chega.
+  Future<AtendimentoResult<List<Atendimento>>> fetchClientsWithoutService(
+    AtendimentoQuery query,
+  ) async {
+    final response = await api.getClientsWithoutService(query.clientParams());
+    if (!response.success) {
+      return AtendimentoResult.error(
+        response.errorMessage ??
+            'Não foi possível carregar os clientes não atendidos.',
+      );
+    }
+
+    final result = <Atendimento>[];
+    for (final json in _decodeList(response.body ?? '')) {
+      result.add(await _prepareCoordinates(Atendimento.fromJson(json)));
+    }
+    return AtendimentoResult.success(result);
   }
 
   /// Busca várias páginas de uma vez (primeiro carregamento).
