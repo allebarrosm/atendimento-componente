@@ -115,3 +115,8 @@ Ajustes do mobile.
   (450x200) com fechar no topo à direita e **miniatura** do panorama (150x100)
   com a etiqueta "Street View"; tocar na miniatura entra no Street View. Sem
   panorama, fica o mesmo quadro vazio do app.
+
+## 0.1.8 — 2025-11-25
+
+- Tamanho dos pinos no mobile: cliente **66px** e atendimento (presencial/
+  remoto/fora do cliente) **50px**. No Web seguem 25/25.

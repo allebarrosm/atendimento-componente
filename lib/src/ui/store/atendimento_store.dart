@@ -36,10 +36,10 @@ abstract class AtendimentoStoreBase with Store {
     this.titleFactory = const AtendimentoTitleFactory(),
   })  : markerFactory = markerFactory ??
             AtendimentoMarkerFactory(
-              // No mobile o pino do cliente fica um pouco maior; o do
-              // atendimento (que é desenhado por cima) um pouco menor.
-              clientIconSize: kIsWeb ? 25 : 30,
-              serviceIconSize: kIsWeb ? 25 : 22,
+              // No mobile: cliente 66px e atendimento 50px (em pixels do
+              // bitmap; é o que dá o tamanho certo na tela do aparelho).
+              clientIconSize: kIsWeb ? 25 : 66,
+              serviceIconSize: kIsWeb ? 25 : 50,
             ),
         // No Web a edição já nasce ligada (o BackOffice não tem mais o botão
         // de "Alterar coordenadas"); no Android nasce desligada.
