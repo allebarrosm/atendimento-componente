@@ -1,0 +1,38 @@
+name: atendimento
+description: >-
+  Componente compartilhado de Atendimento (mapa, marcadores, filtros,
+  estatísticas, cards e grid) para Gestão e BackOffice. Android e Web.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.29.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_mobx: ^2.3.0
+  mobx: ^2.6.0
+  google_maps_flutter: ^2.14.0
+  flutter_floating_map_marker_titles_core: ^1.2.0
+  latlong2: ^0.9.0
+  # Camada de mapa já unificada (RoteiroMap, InfoWindow, DetailsCard, GeoPoint).
+  # Mesmo ref usado por Gestão/BackOffice: assim o pub trata como a mesma
+  # origem e não é preciso override. Para editar o roteiro junto com este
+  # pacote, crie um pubspec_overrides.yaml apontando para ../roteiro.
+  roteiro:
+    git:
+      url: https://github.com/allebarrosm/roteiro-componente
+      ref: 4c581a22eda527c53b22b67cdeff663eed5adc69
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.11
+  mobx_codegen: ^2.6.0
+  flutter_lints: ^6.0.0
+
+flutter:
+  assets:
+    - assets/images/

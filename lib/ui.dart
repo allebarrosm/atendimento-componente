@@ -1,0 +1,12 @@
+export 'src/ui/atendimento_body.dart';
+export 'src/ui/atendimento_screen.dart';
+export 'src/ui/store/atendimento_marker_factory.dart';
+export 'src/ui/store/atendimento_store.dart';
+export 'src/ui/store/atendimento_title_factory.dart';
+export 'src/ui/theme/atendimento_theme.dart';
+export 'src/ui/widgets/atendimento_card.dart';
+export 'src/ui/widgets/atendimento_filter_panel.dart';
+export 'src/ui/widgets/atendimento_grid.dart';
+export 'src/ui/widgets/atendimento_legend.dart';
+export 'src/ui/widgets/atendimento_stats_panel.dart';
+export 'src/ui/widgets/coordinate_editor_bar.dart';
