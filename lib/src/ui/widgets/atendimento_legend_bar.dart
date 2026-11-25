@@ -29,84 +29,95 @@ class AtendimentoLegendBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return SizedBox(
-      width: size.width * widthFactor,
-      child: Align(
-        alignment: Alignment.bottomLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 5),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.visitadoComAgenda,
-                    ),
-                    'Cliente agendado e atendido',
-                    filter.showCheckAndService,
-                    1,
-                  ),
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.naoVisitadoComAgenda,
-                    ),
-                    'Cliente agendado e não atendido',
-                    filter.showCheckAndNotService,
-                    2,
-                  ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.naoVisitadoSemAgenda,
-                    ),
-                    'Cliente sem agenda',
-                    filter.showServices,
-                    3,
-                  ),
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.visitadoSemAgenda,
-                    ),
-                    'Cliente sem agenda e atendido',
-                    filter.showNotCheckAndService,
-                    4,
-                  ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForModality(Modalidade.presencial),
-                    'Presencial',
-                    filter.showInPerson,
-                    5,
-                  ),
-                  _item(
-                    AtendimentoTheme.assetForModality(Modalidade.remoto),
-                    'Remoto',
-                    filter.showRemote,
-                    6,
-                  ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForModality(
-                      Modalidade.presencial,
-                      farAway: true,
-                    ),
-                    'Presencial fora do cliente',
-                    filter.showInPersonFarAway,
-                    7,
-                  ),
-                ]),
-              ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final target = size.width * widthFactor;
+        final width = constraints.maxWidth.isFinite
+            ? (target < constraints.maxWidth ? target : constraints.maxWidth)
+            : target;
+
+        return SizedBox(
+          width: width,
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _column([
+                      _item(
+                        AtendimentoTheme.assetForSituation(
+                          AtendimentoSituacao.visitadoComAgenda,
+                        ),
+                        'Cliente agendado e atendido',
+                        filter.showCheckAndService,
+                        1,
+                      ),
+                      _item(
+                        AtendimentoTheme.assetForSituation(
+                          AtendimentoSituacao.naoVisitadoComAgenda,
+                        ),
+                        'Cliente agendado e não atendido',
+                        filter.showCheckAndNotService,
+                        2,
+                      ),
+                    ]),
+                    _column([
+                      _item(
+                        AtendimentoTheme.assetForSituation(
+                          AtendimentoSituacao.naoVisitadoSemAgenda,
+                        ),
+                        'Cliente sem agenda',
+                        filter.showServices,
+                        3,
+                      ),
+                      _item(
+                        AtendimentoTheme.assetForSituation(
+                          AtendimentoSituacao.visitadoSemAgenda,
+                        ),
+                        'Cliente sem agenda e atendido',
+                        filter.showNotCheckAndService,
+                        4,
+                      ),
+                    ]),
+                    _column([
+                      _item(
+                        AtendimentoTheme.assetForModality(
+                          Modalidade.presencial,
+                        ),
+                        'Presencial',
+                        filter.showInPerson,
+                        5,
+                      ),
+                      _item(
+                        AtendimentoTheme.assetForModality(Modalidade.remoto),
+                        'Remoto',
+                        filter.showRemote,
+                        6,
+                      ),
+                    ]),
+                    _column([
+                      _item(
+                        AtendimentoTheme.assetForModality(
+                          Modalidade.presencial,
+                          farAway: true,
+                        ),
+                        'Presencial fora do cliente',
+                        filter.showInPersonFarAway,
+                        7,
+                      ),
+                    ]),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

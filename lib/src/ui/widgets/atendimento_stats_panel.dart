@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/atendimento_format.dart';
 import '../../core/atendimento_statistics.dart';
 import '../theme/atendimento_theme.dart';
 
@@ -72,6 +73,10 @@ class AtendimentoStatsPanel extends StatelessWidget {
                 Switch(
                   value: showClient,
                   onChanged: onShowClient,
+                  activeThumbColor: Colors.white,
+                  activeTrackColor: Colors.black,
+                  inactiveThumbColor: Colors.black,
+                  inactiveTrackColor: Colors.white,
                 ),
               ],
             ),
@@ -135,7 +140,7 @@ class AtendimentoStatsPanel extends StatelessWidget {
         SizedBox(
           width: 50,
           child: Text(
-            value == null ? '-' : '$value',
+            value == null ? '-' : formatCount(value),
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontWeight: FontWeight.bold,
