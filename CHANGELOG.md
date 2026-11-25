@@ -167,3 +167,15 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   550 linhas carregadas, coordenadas com espaço no fim sendo lidas, "Vazio" e
   "Não Atendidos" com 550 linhas/22 pinos, "Atendidos" sem chamar o endpoint.
   92 testes no total.
+
+## 0.1.13 — 2025-11-25
+
+- O interruptor **"Cliente sem agenda"** volta a nascer **desmarcado** em todas
+  as cargas, inclusive no modo "Vazio". As linhas de
+  `GetClientesSemAtendimento` continuam sendo carregadas (e contam em
+  `clients`), mas só entram no mapa/grade quando o usuário marca o interruptor.
+  A única exceção continua sendo o filtro "Não Atendidos", que liga o
+  interruptor sozinho porque ali a lista inteira é de clientes sem agenda.
+- A grade segue com uma linha por dia (550 na fixture real) e o mapa com um
+  pino por cliente (22) quando o interruptor está ligado.
+- 93 testes.

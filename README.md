@@ -99,7 +99,7 @@ lib/
       atendimento_screen.dart           # Scaffold de conveniência
 assets/images/               # 9 ícones (iguais nos 2 apps)
 example/                     # demo Android/Web
-test/                        # 92 testes
+test/                        # 93 testes
 ```
 
 Regra de dependência: `core` não importa Flutter; `data` importa `core`; `ui`
@@ -261,13 +261,15 @@ await store.load(
 
 | Opção | Endpoints | O que aparece |
 |---|---|---|
-| **Vazio** | `GetOData` + `GetClientesSemAtendimento` | atendimentos + clientes não atendidos |
+| **Vazio** | `GetOData` + `GetClientesSemAtendimento` | atendimentos (clientes não atendidos só com o interruptor ligado) |
 | **Atendidos** | só `GetOData` | atendimentos |
 | **Não Atendidos** | só `GetClientesSemAtendimento` | clientes não atendidos |
 
-Em "Vazio" e "Não Atendidos" o pacote liga o interruptor **Cliente sem agenda**
-automaticamente — sem isso as linhas de `GetClientesSemAtendimento` (situação
-`NaoVisitadoSemAgenda`) ficariam fora do mapa e da grade.
+O interruptor **Cliente sem agenda** nasce **desmarcado**: as linhas de
+`GetClientesSemAtendimento` (situação `NaoVisitadoSemAgenda`) são carregadas,
+mas só entram no mapa/grade quando o usuário o marca. A exceção é o filtro
+**"Não Atendidos"**, que o liga sozinho — nesse modo a lista inteira é de
+clientes sem agenda e viria vazia sem ele.
 
 O endpoint devolve **uma linha por dia** do período (`Id` repetido, porque é o
 id do cliente). Por isso:

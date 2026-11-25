@@ -251,12 +251,13 @@ abstract class AtendimentoStoreBase with Store {
     modality = modalityValue;
     if (agendamentosFilter != null) agendamentos = agendamentosFilter;
 
-    // "Vazio" (sem filtro de agendamento) e "Não atendidos" trazem os
-    // clientes de `GetClientesSemAtendimento`, que só aparecem com o
-    // interruptor "cliente sem agenda" ligado — o pacote liga sozinho para a
-    // lista não vir vazia. Em "Atendidos" o interruptor fica como o usuário
-    // deixou (o endpoint nem é chamado).
-    if (agendamentos != AgendamentosFiltro.atendidos && !filter.showServices) {
+    // O interruptor "cliente sem agenda" nasce **desmarcado**: os clientes de
+    // `GetClientesSemAtendimento` só entram no mapa/grade quando o usuário
+    // liga o interruptor ou escolhe "Não Atendidos" (aí sim a lista inteira é
+    // de clientes sem agenda, e o pacote liga o interruptor para ela não vir
+    // vazia).
+    if (agendamentos == AgendamentosFiltro.naoAtendidos &&
+        !filter.showServices) {
       filter = filter.copyWith(showServices: true);
     }
 

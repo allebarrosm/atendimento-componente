@@ -73,14 +73,27 @@ void main() {
       expect(api.serviceCalls, 1);
     });
 
-    test('nenhuma das 550 linhas fica de fora', () {
+    test('"cliente sem agenda" nasce desmarcado e nada dessas linhas é plotado',
+        () {
+      expect(store.filter.showServices, isFalse);
       expect(store.clients, hasLength(550));
+      expect(store.services, isEmpty);
+      expect(store.rows, isEmpty);
+      expect(store.markers, isEmpty);
+    });
+
+    test('com o interruptor ligado, as 550 linhas aparecem', () async {
+      await store.setFilterSwitch(3, true);
+
+      expect(store.filter.showServices, isTrue);
       expect(store.services, hasLength(550));
       expect(store.rows, hasLength(550));
       expect(store.filter.showServices, isTrue);
     });
 
-    test('plota um pino por cliente (22), não um por dia', () {
+    test('plota um pino por cliente (22), não um por dia', () async {
+      await store.setFilterSwitch(3, true);
+
       expect(store.markers, hasLength(22));
 
       final codigos = clientesSemAtendimento.map((c) => c.codePerson).toSet();
@@ -90,7 +103,9 @@ void main() {
       expect(pinos, codigos);
     });
 
-    test('grade lista 25 dias por cliente, com as datas certas', () {
+    test('grade lista 25 dias por cliente, com as datas certas', () async {
+      await store.setFilterSwitch(3, true);
+
       final porCliente = <String, int>{};
       for (final atendimento in store.rows) {
         porCliente.update(
@@ -108,8 +123,8 @@ void main() {
       );
     });
 
-    test('desligar "cliente sem agenda" esconde tudo, sem perder os dados',
-        () async {
+    test('desligar volta a esconder tudo, sem perder os dados', () async {
+      await store.setFilterSwitch(3, true);
       await store.setFilterSwitch(3, false);
 
       expect(store.services, isEmpty);
@@ -140,7 +155,7 @@ void main() {
   });
 
   group('"Vazio" com atendimentos e clientes sem atendimento juntos', () {
-    test('soma as duas listas, sem perder dia nem pino', () async {
+    test('soma as duas listas quando o interruptor é ligado', () async {
       final api = FakeApi(
         pages: [
           [atendimentoJson(id: 1, codePerson: '999')],
@@ -151,6 +166,12 @@ void main() {
       final store = buildStore(api);
 
       await store.load(start: inicio, end: fim);
+
+      // Desmarcado, só o atendimento aparece.
+      expect(store.rows, hasLength(1));
+      expect(store.markers, hasLength(1));
+
+      await store.setFilterSwitch(3, true);
 
       expect(store.rows, hasLength(551));
       // 22 clientes sem atendimento + o cliente do atendimento.

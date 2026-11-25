@@ -74,7 +74,7 @@ void main() {
       expect(store.hasMore, isFalse);
     });
 
-    test('o filtro nasce com "sem agenda" desligado (mas o load liga)',
+    test('filtra "sem agenda" desligado por padrão, inclusive após o load',
         () async {
       final api = FakeApi(
         pages: [
@@ -89,16 +89,14 @@ void main() {
 
       await store.load();
 
-      // "Vazio" mostra tudo: o load liga o interruptor para os clientes de
-      // `GetClientesSemAtendimento` não sumirem da lista.
-      expect(store.filter.showServices, isTrue);
+      expect(store.filter.showServices, isFalse);
       expect(store.clients, hasLength(2));
-      expect(store.services, hasLength(2));
-
-      await store.setFilterSwitch(3, false);
-
       expect(store.services, hasLength(1));
       expect(store.rows.single.id, 2);
+
+      await store.setFilterSwitch(3, true);
+
+      expect(store.services, hasLength(2));
     });
 
     test('respeita páginas cheias e permite carregar mais', () async {
