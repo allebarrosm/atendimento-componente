@@ -16,8 +16,8 @@ import '../theme/atendimento_theme.dart';
 /// desenhado por cima (`zIndex` maior) — assim o pino de trás continua visível.
 class AtendimentoMarkerFactory {
   AtendimentoMarkerFactory({
-    this.clientIconSize = 30,
-    this.serviceIconSize = 22,
+    this.clientIconSize = 50,
+    this.serviceIconSize = 42,
   });
 
   /// Lado do pino do cliente (situação), em pixels lógicos.

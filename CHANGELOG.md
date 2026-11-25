@@ -108,3 +108,10 @@ Ajustes do mobile.
   do atendimento (presencial/remoto/fora do cliente) de 25 para 22px. Como o
   pino do atendimento é desenhado por cima, menorzinho ele deixa o de trás
   visível. No Web os tamanhos continuam 25/25.
+
+## 0.1.7 — 2025-11-25
+
+- Card do rodapé do mapa igual ao Gestão/BackOffice: `AtendimentoStreetViewCard`
+  (450x200) com fechar no topo à direita e **miniatura** do panorama (150x100)
+  com a etiqueta "Street View"; tocar na miniatura entra no Street View. Sem
+  panorama, fica o mesmo quadro vazio do app.

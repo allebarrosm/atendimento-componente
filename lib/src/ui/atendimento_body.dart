@@ -5,7 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:roteiro/ui.dart'
     show
-        RoteiroDetailsCard,
         RoteiroInfoWindowData,
         RoteiroMap,
         RoteiroMapButton,
@@ -19,6 +18,7 @@ import 'widgets/atendimento_grid.dart';
 import 'widgets/atendimento_legend_bar.dart';
 import 'widgets/atendimento_stats_header.dart';
 import 'widgets/atendimento_stats_panel.dart';
+import 'widgets/atendimento_street_view_card.dart';
 import 'widgets/coordinate_editor_bar.dart';
 
 /// Layout usado pela tela.
@@ -283,9 +283,9 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   ),
                 ),
           onCloseInfoWindow: store.clearSelection,
-          detailsCard:
-              selected == null ? null : _detailsCard(context, selected),
-          showDetailsCard: selected != null,
+          detailsCard: _detailsCard(context, selected, _mapController),
+          showDetailsCard:
+              selected != null && _selectionCoordinate(selected) != null,
           onCloseDetails: store.clearSelection,
           // No Web os botões de mapa/Street View viram as pílulas do topo.
           showMapTypeButton: _layout == AtendimentoLayout.mobile,
@@ -365,10 +365,10 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                             rows: selected.toViewRows(compact: true),
                           ),
                     onCloseInfoWindow: store.clearSelection,
-                    detailsCard: selected == null
-                        ? null
-                        : _detailsCard(context, selected),
-                    showDetailsCard: selected != null,
+                    detailsCard:
+                        _detailsCard(context, selected, fullController),
+                    showDetailsCard: selected != null &&
+                        _selectionCoordinate(selected) != null,
                     onCloseDetails: store.clearSelection,
                     showFullScreenButton: false,
                     customButton: RoteiroMapButton(
@@ -493,21 +493,30 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
     );
   }
 
-  Widget _detailsCard(BuildContext context, Atendimento selected) {
-    final store = widget.store;
+  LatLng? _selectionCoordinate(Atendimento? selected) {
+    if (selected == null) return null;
+    final coord = selected.serviceLocation ?? selected.clientLocation;
+    if (coord == null) return null;
+    return LatLng(coord.latitude, coord.longitude);
+  }
 
-    return RoteiroDetailsCard(
-      title: selected.displayName,
-      subtitle: selected.descriptionSituation,
-      address: selected.address,
-      onClose: store.clearSelection,
-      onStreetView: () {
-        final coord = selected.serviceLocation ?? selected.clientLocation;
-        if (coord == null) return;
-        _mapController.openStreetView(
-          LatLng(coord.latitude, coord.longitude),
-        );
+  /// Card de Street View do rodapé (mesmo do Gestão/BackOffice).
+  Widget? _detailsCard(
+    BuildContext context,
+    Atendimento? selected,
+    RoteiroMapController controller,
+  ) {
+    final coordinate = _selectionCoordinate(selected);
+    if (coordinate == null) return null;
+
+    return AtendimentoStreetViewCard(
+      coordinate: coordinate,
+      verify: (coord) async {
+        final result = await controller.streetViewService.verify(coord);
+        return result.available;
       },
+      onOpen: () => controller.openStreetView(coordinate),
+      onClose: widget.store.clearSelection,
     );
   }
 }
