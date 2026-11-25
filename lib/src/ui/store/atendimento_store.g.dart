@@ -694,11 +694,13 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
   }
 
   @override
-  void select(Atendimento atendimento, {MarkerId? markerId}) {
+  void select(Atendimento atendimento,
+      {MarkerId? markerId, LatLng? coordinate}) {
     final _$actionInfo = _$AtendimentoStoreBaseActionController.startAction(
         name: 'AtendimentoStoreBase.select');
     try {
-      return super.select(atendimento, markerId: markerId);
+      return super
+          .select(atendimento, markerId: markerId, coordinate: coordinate);
     } finally {
       _$AtendimentoStoreBaseActionController.endAction(_$actionInfo);
     }

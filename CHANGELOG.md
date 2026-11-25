@@ -211,3 +211,15 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
     quando há ponto selecionado (o card também saiu de lá).
 - `AtendimentoStreetViewCard` foi removido (widget, export e teste).
 - 94 testes.
+
+## 0.1.17 — 2025-11-25
+
+- Street View abre na **coordenada do pino clicado**, como no BackOffice: o
+  `select` passou a receber a posição do marcador tocado (atendimento ou
+  cliente). Antes ele sempre preferia a coordenada do cliente, então clicar no
+  pino do atendimento abria o panorama no endereço do cliente.
+- Selecionando pela grade/lista (sem pino), usa a coordenada do atendimento e,
+  na falta dela, a do cliente.
+- Ao trocar para a grade o panorama é fechado — ao voltar para o mapa ele não
+  reaparece na coordenada antiga.
+- 97 testes.

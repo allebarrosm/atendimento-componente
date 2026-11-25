@@ -482,6 +482,75 @@ void main() {
     });
   });
 
+  group('AtendimentoStore Street View', () {
+    test('abre na coordenada do atendimento, não na do cliente', () async {
+      final store = buildStore(
+        FakeApi(
+          pages: [
+            [
+              atendimentoJson(
+                id: 1,
+                latClient: -8.05,
+                lonClient: -34.9,
+                latService: -8.06,
+                lonService: -34.91,
+              ),
+            ],
+          ],
+        ),
+      );
+      await store.load();
+
+      store.select(store.clients.single);
+
+      expect(store.streetViewCoord!.latitude, closeTo(-8.06, 1e-9));
+      expect(store.streetViewCoord!.longitude, closeTo(-34.91, 1e-9));
+    });
+
+    test('sem coordenada de atendimento usa a do cliente', () async {
+      final store = buildStore(
+        FakeApi(pages: [
+          [atendimentoJson(id: 1, latClient: -8.05, lonClient: -34.9)],
+        ]),
+      );
+      await store.load();
+
+      store.select(store.clients.single);
+
+      expect(store.streetViewCoord!.latitude, closeTo(-8.05, 1e-9));
+    });
+
+    test('tocar no pino do cliente usa a coordenada do cliente', () async {
+      final store = buildStore(
+        FakeApi(pages: [
+          [
+            atendimentoJson(
+              id: 1,
+              latClient: -8.05,
+              lonClient: -34.9,
+              latService: -8.06,
+              lonService: -34.91,
+            ),
+          ],
+        ]),
+      );
+      await store.load();
+
+      final clientMarker = store.markers.firstWhere(
+        (marker) => marker.markerId.value.startsWith('VisitadoComAgenda_'),
+      );
+      clientMarker.onTap!();
+
+      expect(store.streetViewCoord!.latitude, closeTo(-8.05, 1e-9));
+
+      final serviceMarker =
+          store.markers.firstWhere((marker) => marker.markerId.value == '1');
+      serviceMarker.onTap!();
+
+      expect(store.streetViewCoord!.latitude, closeTo(-8.06, 1e-9));
+    });
+  });
+
   group('AtendimentoTitleFactory', () {
     test('numera o atendimento e omite "sem agenda e não atendido"', () {
       const factory = AtendimentoTitleFactory();

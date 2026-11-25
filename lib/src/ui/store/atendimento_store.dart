@@ -380,13 +380,21 @@ abstract class AtendimentoStoreBase with Store {
   void setMap(bool value) => isMap = value;
 
   @action
-  void select(Atendimento atendimento, {MarkerId? markerId}) {
+  void select(
+    Atendimento atendimento, {
+    MarkerId? markerId,
+    LatLng? coordinate,
+  }) {
     selected = atendimento;
     selectedMarkerId = markerId;
-    final coord = atendimento.clientLocation ?? atendimento.serviceLocation;
-    if (coord != null) {
-      streetViewCoord = LatLng(coord.latitude, coord.longitude);
-    }
+    // O Street View abre no ponto do pino clicado, como no BackOffice: a
+    // coordenada do atendimento quando o pino é o dele e a do cliente quando
+    // é o pino do cliente. Antes a ordem era sempre "cliente primeiro", o que
+    // abria o panorama no endereço do cliente mesmo clicando no atendimento.
+    final point = atendimento.locationForMap;
+    final coord = coordinate ??
+        (point == null ? null : LatLng(point.latitude, point.longitude));
+    if (coord != null) streetViewCoord = coord;
   }
 
   @action
@@ -601,7 +609,11 @@ abstract class AtendimentoStoreBase with Store {
             startCoordinateEdit(atendimento);
             moveEditingCoordinate(newCoord);
           },
-          onTap: () => select(atendimento, markerId: markerId),
+          onTap: () => select(
+            atendimento,
+            markerId: markerId,
+            coordinate: position,
+          ),
         ),
       );
     }
@@ -646,6 +658,7 @@ abstract class AtendimentoStoreBase with Store {
           onTap: () => select(
             atendimento,
             markerId: MarkerId('${atendimento.id}'),
+            coordinate: position,
           ),
         ),
       );

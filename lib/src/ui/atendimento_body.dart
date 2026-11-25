@@ -233,8 +233,12 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   counters: widget.store.counters,
                   isMap: widget.store.isMap,
                   showClient: widget.store.showClient,
-                  onToggleMap: () =>
-                      widget.store.setMap(!widget.store.isMap),
+                  onToggleMap: () {
+                    // Indo para a grade: fecha o panorama, senão ao voltar
+                    // para o mapa ele reapareceria na coordenada antiga.
+                    if (widget.store.isMap) _mapController.closeStreetView();
+                    widget.store.setMap(!widget.store.isMap);
+                  },
                   onShowClient: widget.store.setShowClient,
                 ),
               ],
