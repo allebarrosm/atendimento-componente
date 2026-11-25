@@ -148,3 +148,22 @@ Ajustes do mobile.
 
 - `GetClientesSemAtendimento` passa a ser chamado sempre que houver período,
   inclusive no modo "Vazio" e sem representante selecionado.
+
+## 0.1.12 — 2025-11-25
+
+Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento`
+(22 clientes × 25 dias = 550 linhas, todas `NaoVisitadoSemAgenda`).
+
+- **"Vazio" mostrava 0**: o endpoint era chamado, mas as linhas ficavam fora do
+  mapa/grade porque o interruptor "Cliente sem agenda" nascia desligado. Agora o
+  `load` liga o interruptor também no modo "Vazio" (em "Atendidos" ele continua
+  como o usuário deixou).
+- **A grade sumia com 24 dos 25 dias de cada cliente**: `rows` deduplicava pelo
+  `Id`, que em `GetClientesSemAtendimento` é o id do cliente, repetido em todos
+  os dias. A deduplicação passou a ser por atendimento (id + cliente + data/hora)
+  e só remove duplicata de paginação: 22 clientes × 25 dias = 550 linhas na
+  grade, e um pino por cliente (22) no mapa.
+- Testes com a fixture real (`test/support/clientes_sem_atendimento.dart`):
+  550 linhas carregadas, coordenadas com espaço no fim sendo lidas, "Vazio" e
+  "Não Atendidos" com 550 linhas/22 pinos, "Atendidos" sem chamar o endpoint.
+  91 testes no total.

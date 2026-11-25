@@ -99,7 +99,7 @@ lib/
       atendimento_screen.dart           # Scaffold de conveniência
 assets/images/               # 9 ícones (iguais nos 2 apps)
 example/                     # demo Android/Web
-test/                        # 68 testes
+test/                        # 91 testes
 ```
 
 Regra de dependência: `core` não importa Flutter; `data` importa `core`; `ui`
@@ -252,8 +252,30 @@ await store.load(
   supervisorCode: filtro.supervisorId,
   type: filtro.tipoAtendimento,
   modalityValue: filtro.modalidade,
+  // Vazio / Atendidos / Não Atendidos (padrão: Vazio).
+  agendamentosFilter: AgendamentosFiltro.fromLabel(filtro.agendamentos),
 );
 ```
+
+### Filtro "Agendamentos"
+
+| Opção | Endpoints | O que aparece |
+|---|---|---|
+| **Vazio** | `GetOData` + `GetClientesSemAtendimento` | atendimentos + clientes não atendidos |
+| **Atendidos** | só `GetOData` | atendimentos |
+| **Não Atendidos** | só `GetClientesSemAtendimento` | clientes não atendidos |
+
+Em "Vazio" e "Não Atendidos" o pacote liga o interruptor **Cliente sem agenda**
+automaticamente — sem isso as linhas de `GetClientesSemAtendimento` (situação
+`NaoVisitadoSemAgenda`) ficariam fora do mapa e da grade.
+
+O endpoint devolve **uma linha por dia** do período (`Id` repetido, porque é o
+id do cliente). Por isso:
+
+- `store.rows` (lista/grade) tem uma linha por dia — 22 clientes × 25 dias = 550
+  linhas, mesmo que o `Id` se repita;
+- `store.markers` tem **um pino por cliente** (22), já que 25 pinos no mesmo
+  ponto não mostrariam nada diferente.
 
 ### 3. Encaixe a tela
 

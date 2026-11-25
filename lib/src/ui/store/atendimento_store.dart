@@ -185,17 +185,19 @@ abstract class AtendimentoStoreBase with Store {
       enableCoordinateEditing && coordinateEditing;
 
   /// Atendimentos exibidos na lista/grade, sem repetir o mesmo atendimento.
+  ///
+  /// O `Id` do OData **não** identifica um atendimento: em
+  /// `GetClientesSemAtendimento` ele é o id do cliente (CNPJ), repetido em
+  /// todos os dias do período. Deduplicar só pelo `Id` sumia com 24 dos 25
+  /// dias de cada cliente. A chave é o atendimento em si: id + cliente +
+  /// data/hora (as duplicatas de paginação têm os três iguais).
   List<Atendimento> get rows {
-    final seen = <int>{};
+    final seen = <String>{};
     final result = <Atendimento>[];
     for (final atendimento in services) {
-      // Clientes sem atendimento podem vir com `Id` 0: nesse caso não dá para
-      // deduplicar por id (senão sobraria uma linha só).
-      if (atendimento.id == 0) {
-        result.add(atendimento);
-      } else if (seen.add(atendimento.id)) {
-        result.add(atendimento);
-      }
+      final key = '${atendimento.id}|${atendimento.codePerson}|'
+          '${atendimento.startDate.toIso8601String()}';
+      if (seen.add(key)) result.add(atendimento);
     }
     return result;
   }
@@ -249,10 +251,12 @@ abstract class AtendimentoStoreBase with Store {
     modality = modalityValue;
     if (agendamentosFilter != null) agendamentos = agendamentosFilter;
 
-    // "Não atendidos" só aparece se o interruptor "cliente sem agenda"
-    // estiver ligado — o pacote liga sozinho para a lista não vir vazia.
-    if (agendamentos == AgendamentosFiltro.naoAtendidos &&
-        !filter.showServices) {
+    // "Vazio" (sem filtro de agendamento) e "Não atendidos" trazem os
+    // clientes de `GetClientesSemAtendimento`, que só aparecem com o
+    // interruptor "cliente sem agenda" ligado — o pacote liga sozinho para a
+    // lista não vir vazia. Em "Atendidos" o interruptor fica como o usuário
+    // deixou (o endpoint nem é chamado).
+    if (agendamentos != AgendamentosFiltro.atendidos && !filter.showServices) {
       filter = filter.copyWith(showServices: true);
     }
 
