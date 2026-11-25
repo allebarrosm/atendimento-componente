@@ -82,3 +82,10 @@ Ajustes do mobile.
 - `AtendimentoBody` ganhou `showFilterButton` (default `true`). O Gestão passa
   `false` e abre os interruptores pelo atalho da barra superior, que agora
   funciona também sobre o mapa.
+
+## 0.1.3 — 2025-11-25
+
+- Cards de indicadores do mobile idênticos ao Gestão: rótulo no estilo
+  `bodySmall` (itálico, 13, branco herdado), valor no estilo `titleMedium`
+  (14, peso normal), ícone na cor primária do tema, borda preta, largura de
+  rótulo 92 e os mesmos paddings do `InformationViewWithMap`.

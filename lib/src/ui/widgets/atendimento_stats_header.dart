@@ -42,7 +42,7 @@ class _AtendimentoStatsHeaderState extends State<AtendimentoStatsHeader> {
                   context,
                   'Clientes',
                   Icons.handshake,
-                  AtendimentoTheme.primary,
+                  Theme.of(context).colorScheme.primary,
                   stats?.grandTotal,
                 ),
               ),
@@ -109,7 +109,7 @@ class _AtendimentoStatsHeaderState extends State<AtendimentoStatsHeader> {
                     context,
                     'Agenda',
                     Icons.event,
-                    AtendimentoTheme.primary,
+                    Theme.of(context).colorScheme.primary,
                     counters.scheduled == 0 ? null : counters.scheduled,
                   ),
                   _info(
@@ -142,7 +142,7 @@ class _AtendimentoStatsHeaderState extends State<AtendimentoStatsHeader> {
       padding: const EdgeInsets.all(5),
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        border: Border.all(color: scheme.outline),
+        border: Border.all(color: Colors.black),
         borderRadius: const BorderRadius.all(Radius.circular(5)),
         color: scheme.primaryContainer,
       ),
@@ -154,10 +154,10 @@ class _AtendimentoStatsHeaderState extends State<AtendimentoStatsHeader> {
     BuildContext context,
     String title,
     IconData icon,
-    Color color,
+    Color? color,
     int? value,
   ) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -165,22 +165,24 @@ class _AtendimentoStatsHeaderState extends State<AtendimentoStatsHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: 120,
+            width: 92,
+            // Mesmo estilo do CustomText do Gestão (bodySmall, itálico, 13).
             child: Text(
               title,
-              style: TextStyle(
+              style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 13,
+                fontWeight: FontWeight.normal,
                 fontStyle: FontStyle.italic,
-                color: scheme.onPrimaryContainer,
               ),
             ),
           ),
           Text(
             value == null ? '-' : formatCount(value),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: scheme.onPrimaryContainer,
+            // O Gestão passa titleMedium pelo CustomText, que força 14 e
+            // peso normal (o 18/negrito só existe no painel do Web).
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
             ),
           ),
           Icon(icon, size: 16, color: color),

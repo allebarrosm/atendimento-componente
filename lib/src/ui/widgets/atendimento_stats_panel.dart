@@ -41,7 +41,7 @@ class AtendimentoStatsPanel extends StatelessWidget {
         children: [
           _toggleButton(),
           _box([
-            _info('Atendimentos', Icons.handshake, AtendimentoTheme.primary,
+            _info('Atendimentos', Icons.handshake, Theme.of(context).colorScheme.primary,
                 stats.grandTotal),
             _info('Vendas', Icons.thumb_up, AtendimentoTheme.green,
                 stats.totalSales),
@@ -55,7 +55,7 @@ class AtendimentoStatsPanel extends StatelessWidget {
                 stats.totalRemote),
           ]),
           _box([
-            _info('Agenda', Icons.event, AtendimentoTheme.primary,
+            _info('Agenda', Icons.event, Theme.of(context).colorScheme.primary,
                 counters.scheduled == 0 ? null : counters.scheduled),
             _info('Atendidos', Icons.event_available, AtendimentoTheme.green,
                 counters.visited == 0 ? null : counters.visited),
