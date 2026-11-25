@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:roteiro/ui.dart'
     show
@@ -18,7 +17,6 @@ import 'widgets/atendimento_grid.dart';
 import 'widgets/atendimento_legend_bar.dart';
 import 'widgets/atendimento_stats_header.dart';
 import 'widgets/atendimento_stats_panel.dart';
-import 'widgets/atendimento_street_view_card.dart';
 import 'widgets/coordinate_editor_bar.dart';
 
 /// Layout usado pela tela.
@@ -243,12 +241,17 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
             ),
           ),
           // Barra de legenda/filtros, embaixo do mapa (como no BackOffice).
+          // Some junto com o mapa quando o Street View está aberto.
           Positioned(
             left: 0,
             bottom: 0,
-            child: AtendimentoLegendBar(
-              filter: widget.store.filter,
-              onToggleSwitch: widget.store.setFilterSwitch,
+            child: Observer(
+              builder: (context) => _mapController.isStreetView
+                  ? const SizedBox.shrink()
+                  : AtendimentoLegendBar(
+                      filter: widget.store.filter,
+                      onToggleSwitch: widget.store.setFilterSwitch,
+                    ),
             ),
           ),
         ],
@@ -283,10 +286,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   ),
                 ),
           onCloseInfoWindow: store.clearSelection,
-          detailsCard: _detailsCard(context, selected, _mapController),
-          showDetailsCard:
-              selected != null && _selectionCoordinate(selected) != null,
-          onCloseDetails: store.clearSelection,
+          // Não há card de Street View: o panorama abre pelo botão do mapa —
+          // a pílula ao lado de "Satélite" no Web e o botão do canto no mobile.
           // No Web os botões de mapa/Street View viram as pílulas do topo.
           showMapTypeButton: _layout == AtendimentoLayout.mobile,
           showStreetViewButton:
@@ -365,11 +366,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                             rows: selected.toViewRows(compact: true),
                           ),
                     onCloseInfoWindow: store.clearSelection,
-                    detailsCard:
-                        _detailsCard(context, selected, fullController),
-                    showDetailsCard: selected != null &&
-                        _selectionCoordinate(selected) != null,
-                    onCloseDetails: store.clearSelection,
                     showFullScreenButton: false,
                     customButton: RoteiroMapButton(
                       icon: Icons.close,
@@ -422,31 +418,47 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
   }
 
   /// Pílulas "Satélite" e "StreetView" no topo do mapa (layout do BackOffice).
+  ///
+  /// O Street View abre por aqui (não há mais card no rodapé):
+  /// - sem ponto selecionado a pílula fica **cinza** e não responde ao toque;
+  /// - com ponto selecionado fica branca e abre o panorama no lugar do mapa;
+  /// - com o panorama aberto fica **escura** (e fecha ao tocar), enquanto a
+  ///   pílula "Satélite/Mapa" some.
   Widget _buildMapPills(BuildContext context) {
-    final target = widget.store.streetViewCoord;
-
     // Ao lado do botão de tela cheia (que o mapa desenha em `right: 12`).
     return Positioned(
       // Centralizado com o botão de tela cheia (46px em `top: 12`).
       top: 19,
       right: 66,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _pill(
-            label: _mapController.isNormalType ? 'Satélite' : 'Mapa',
-            onTap: _mapController.toggleMapType,
-          ),
-          const SizedBox(width: 8),
-          _pill(
-            label: 'StreetView',
-            icon: Icons.streetview,
-            filled: true,
-            onTap: target == null
-                ? null
-                : () => _mapController.openStreetView(target),
-          ),
-        ],
+      child: Observer(
+        builder: (context) {
+          final target = widget.store.streetViewCoord;
+          final active = _mapController.isStreetView;
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!active) ...[
+                _pill(
+                  label: _mapController.isNormalType ? 'Satélite' : 'Mapa',
+                  onTap: _mapController.toggleMapType,
+                ),
+                const SizedBox(width: 8),
+              ],
+              _pill(
+                label: 'StreetView',
+                icon: Icons.streetview,
+                disabled: !active && target == null,
+                active: active,
+                onTap: active
+                    ? _mapController.closeStreetView
+                    : target == null
+                        ? null
+                        : () => _mapController.openStreetView(target),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -454,11 +466,20 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
   Widget _pill({
     required String label,
     IconData? icon,
-    bool filled = false,
+    bool disabled = false,
+    bool active = false,
     VoidCallback? onTap,
   }) {
+    final background = active
+        ? const Color(0xFF1B1B1B)
+        : disabled
+            ? const Color(0xFF7A7A7A)
+            : Colors.white;
+    final foreground =
+        active || disabled ? Colors.white : Colors.black;
+
     return Material(
-      color: filled ? const Color(0xFF7A7A7A) : Colors.white,
+      color: background,
       borderRadius: BorderRadius.circular(24),
       elevation: 2,
       child: InkWell(
@@ -474,7 +495,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                 Icon(
                   icon,
                   size: 16,
-                  color: filled ? Colors.white : Colors.black,
+                  color: foreground,
                 ),
                 const SizedBox(width: 6),
               ],
@@ -483,40 +504,13 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.normal,
-                  color: filled ? Colors.white : Colors.black,
+                  color: foreground,
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  LatLng? _selectionCoordinate(Atendimento? selected) {
-    if (selected == null) return null;
-    final coord = selected.serviceLocation ?? selected.clientLocation;
-    if (coord == null) return null;
-    return LatLng(coord.latitude, coord.longitude);
-  }
-
-  /// Card de Street View do rodapé (mesmo do Gestão/BackOffice).
-  Widget? _detailsCard(
-    BuildContext context,
-    Atendimento? selected,
-    RoteiroMapController controller,
-  ) {
-    final coordinate = _selectionCoordinate(selected);
-    if (coordinate == null) return null;
-
-    return AtendimentoStreetViewCard(
-      coordinate: coordinate,
-      verify: (coord) async {
-        final result = await controller.streetViewService.verify(coord);
-        return result.available;
-      },
-      onOpen: () => controller.openStreetView(coordinate),
-      onClose: widget.store.clearSelection,
     );
   }
 }

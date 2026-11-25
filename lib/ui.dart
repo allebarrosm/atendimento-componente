@@ -11,5 +11,4 @@ export 'src/ui/widgets/atendimento_legend.dart';
 export 'src/ui/widgets/atendimento_legend_bar.dart';
 export 'src/ui/widgets/atendimento_stats_header.dart';
 export 'src/ui/widgets/atendimento_stats_panel.dart';
-export 'src/ui/widgets/atendimento_street_view_card.dart';
 export 'src/ui/widgets/coordinate_editor_bar.dart';

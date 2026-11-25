@@ -197,3 +197,17 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   controles.
 - Requer `roteiro` 0.2.2 (`RoteiroStreetViewRequest.showControls`).
 - 95 testes.
+
+## 0.1.16 — 2025-11-25
+
+- **Removido o card de Street View** do rodapé do mapa (Web e mobile). O
+  panorama agora abre só pelo botão de Street View:
+  - **Web**: pílula "StreetView" ao lado de "Satélite" — **cinza** (sem ação)
+    enquanto nenhum ponto está selecionado, **branca** com um ponto
+    selecionado e **escura** com o panorama aberto (tocar nela fecha);
+  - com o panorama aberto a pílula "Satélite/Mapa" e a barra de legenda
+    desaparecem, deixando o panorama inteiro;
+  - **mobile**: continua o botão circular de Street View do mapa, que aparece
+    quando há ponto selecionado (o card também saiu de lá).
+- `AtendimentoStreetViewCard` foi removido (widget, export e teste).
+- 94 testes.
