@@ -76,7 +76,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
 
   late final List<ReactionDisposer> _disposers;
 
-  bool _showFilters = false;
   bool _fitted = false;
 
   AtendimentoLayout get _layout => widget.layout ?? AtendimentoLayout.platform;
@@ -146,19 +145,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
             left: 12,
             right: 12,
             child: _ErrorBanner(message: error),
-          ),
-        if (_showFilters)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: AtendimentoFilterPanel(
-              filter: widget.store.filter,
-              showClient: widget.store.showClient,
-              onToggleSwitch: widget.store.setFilterSwitch,
-              onShowClient: widget.store.setShowClient,
-              onClose: () => setState(() => _showFilters = false),
-            ),
           ),
       ],
     );
@@ -312,6 +298,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           showMapTypeButton: _layout == AtendimentoLayout.mobile,
           showStreetViewButton:
               _layout == AtendimentoLayout.mobile && widget.enableStreetView,
+          // No mobile a tela cheia é nossa (o filtro só aparece lá).
+          showFullScreenButton: _layout == AtendimentoLayout.web,
           customButton: _layout == AtendimentoLayout.mobile
               ? RoteiroMapButton(
                   icon: Icons.arrow_back,
@@ -319,16 +307,13 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   onTap: () => store.setMap(false),
                 )
               : null,
-          customButtonRight:
-              _layout == AtendimentoLayout.mobile && widget.showFilterButton
-                  ? RoteiroMapButton(
-                      icon: Icons.filter_list,
-                      tooltip: 'Filtros',
-                      active: _showFilters,
-                      onTap: () =>
-                          setState(() => _showFilters = !_showFilters),
-                    )
-                  : null,
+          customButtonRight: _layout == AtendimentoLayout.mobile
+              ? RoteiroMapButton(
+                  icon: Icons.fullscreen,
+                  tooltip: 'Tela cheia',
+                  onTap: _openFullscreenMap,
+                )
+              : null,
           onMapTap: (_) => store.clearSelection(),
         ),
         if (_layout == AtendimentoLayout.web) _buildMapPills(context),
@@ -341,6 +326,105 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
             child: CoordinateEditorBar(store: store),
           ),
       ],
+    );
+  }
+
+  /// Tela cheia do mobile: mapa com câmera própria e o botão de filtros —
+  /// que não existe na visão normal (lá o atalho é o da barra do app).
+  Future<void> _openFullscreenMap() async {
+    final fullController = RoteiroMapController(
+      streetViewService: _mapController.streetViewService,
+      onError: widget.store.onError,
+      initialZoom: _mapController.lastZoom ?? widget.initialZoom,
+    );
+
+    await showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: 'Mapa em tela cheia',
+      barrierColor: Colors.black,
+      transitionDuration: const Duration(milliseconds: 180),
+      pageBuilder: (dialogContext, animation, secondaryAnimation) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: Observer(
+            builder: (context) {
+              final store = widget.store;
+              final selected = store.selected;
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  RoteiroMap(
+                    controller: fullController,
+                    markers: store.markers.toSet(),
+                    polylines: store.polylines,
+                    titles: store.showClient ? store.titles.toList() : const [],
+                    initialTarget: _mapController.adjustedLocation,
+                    initialZoom: _mapController.lastZoom ?? widget.initialZoom,
+                    clustering: false,
+                    streetViewTarget: store.streetViewCoord,
+                    infoWindow: selected == null
+                        ? null
+                        : RoteiroInfoWindowData(
+                            title: selected.displayName,
+                            subtitle: selected.address,
+                            rows: selected.toViewRows(compact: true),
+                          ),
+                    onCloseInfoWindow: store.clearSelection,
+                    detailsCard: selected == null
+                        ? null
+                        : _detailsCard(context, selected),
+                    showDetailsCard: selected != null,
+                    onCloseDetails: store.clearSelection,
+                    showFullScreenButton: false,
+                    customButton: RoteiroMapButton(
+                      icon: Icons.close,
+                      tooltip: 'Sair da tela cheia',
+                      onTap: () => Navigator.of(dialogContext).pop(),
+                    ),
+                    customButtonRight: widget.showFilterButton
+                        ? RoteiroMapButton(
+                            icon: Icons.filter_list,
+                            tooltip: 'Filtros',
+                            onTap: () => _openFilterSheet(dialogContext),
+                          )
+                        : null,
+                    onMapTap: (_) => store.clearSelection(),
+                  ),
+                  if (store.canEditCoordinate && store.editing != null)
+                    Positioned(
+                      left: 12,
+                      right: 12,
+                      top: 12,
+                      child: CoordinateEditorBar(store: store),
+                    ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    fullController.dispose();
+  }
+
+  /// Interruptores em bottom sheet (usado no mapa em tela cheia).
+  void _openFilterSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) => Observer(
+        builder: (context) => AtendimentoFilterPanel(
+          filter: widget.store.filter,
+          showClient: widget.store.showClient,
+          onToggleSwitch: widget.store.setFilterSwitch,
+          onShowClient: widget.store.setShowClient,
+          onClose: () => Navigator.of(sheetContext).pop(),
+        ),
+      ),
     );
   }
 

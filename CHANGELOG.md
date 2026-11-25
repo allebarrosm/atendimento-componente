@@ -89,3 +89,10 @@ Ajustes do mobile.
   `bodySmall` (itálico, 13, branco herdado), valor no estilo `titleMedium`
   (14, peso normal), ícone na cor primária do tema, borda preta, largura de
   rótulo 92 e os mesmos paddings do `InformationViewWithMap`.
+
+## 0.1.4 — 2025-11-25
+
+- O botão de filtros do mapa (três traços) saiu da visão normal no mobile: lá o
+  atalho é o da barra do app. Ele aparece só na **tela cheia**, que passou a ser
+  desenhada pelo pacote (mapa com câmera própria, botão de fechar e o filtro
+  abrindo em bottom sheet).
