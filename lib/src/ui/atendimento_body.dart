@@ -363,7 +363,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           Positioned(
             left: 12,
             right: 12,
-            top: 12,
+            // No Web a barra fica abaixo das pílulas Satélite/StreetView.
+            top: _layout == AtendimentoLayout.web ? 62 : 12,
             child: CoordinateEditorBar(store: store),
           ),
       ],
