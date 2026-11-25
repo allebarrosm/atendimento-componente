@@ -15,7 +15,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.14"
+    version: "0.1.15"
   boolean_selector:
     dependency: transitive
     description:
@@ -348,11 +348,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "4c581a22eda527c53b22b67cdeff663eed5adc69"
-      resolved-ref: "4c581a22eda527c53b22b67cdeff663eed5adc69"
+      ref: "5f7c1609b723ccf46eb6bdc645aa50acf24d1e34"
+      resolved-ref: "5f7c1609b723ccf46eb6bdc645aa50acf24d1e34"
       url: "https://github.com/allebarrosm/roteiro-componente"
     source: git
-    version: "0.2.1"
+    version: "0.2.2"
   sanitize_html:
     dependency: transitive
     description:

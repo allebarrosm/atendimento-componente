@@ -187,3 +187,13 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   automaticamente — ele tinha sido ligado pelo próprio "Não Atendidos". A
   escolha manual do usuário em "Vazio"/"Atendidos" continua preservada.
 - 95 testes.
+
+## 0.1.15 — 2025-11-25
+
+- Miniatura do card de Street View no **Web** sem a UI padrão do Google
+  (endereço, zoom, links e fullscreen), que cobria a foto de 150x100 e
+  aparecia cortada. Agora o card mostra só o panorama + a etiqueta
+  "Street View"; tocar continua abrindo o panorama em tela cheia, com os
+  controles.
+- Requer `roteiro` 0.2.2 (`RoteiroStreetViewRequest.showControls`).
+- 95 testes.

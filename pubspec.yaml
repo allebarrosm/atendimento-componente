@@ -2,7 +2,7 @@ name: atendimento
 description: >-
   Componente compartilhado de Atendimento (mapa, marcadores, filtros,
   estatísticas, cards e grid) para Gestão e BackOffice. Android e Web.
-version: 0.1.14
+version: 0.1.15
 publish_to: none
 
 environment:
@@ -24,7 +24,7 @@ dependencies:
   roteiro:
     git:
       url: https://github.com/allebarrosm/roteiro-componente
-      ref: 4c581a22eda527c53b22b67cdeff663eed5adc69
+      ref: 5f7c1609b723ccf46eb6bdc645aa50acf24d1e34
 
 dev_dependencies:
   flutter_test:

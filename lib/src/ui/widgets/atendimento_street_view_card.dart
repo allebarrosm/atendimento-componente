@@ -145,6 +145,9 @@ class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
                   latitude: coordinate.latitude,
                   longitude: coordinate.longitude,
                   onClose: () {},
+                  // Miniatura de 150x100: sem os controles do Google, que
+                  // cobriam a foto e apareciam cortados no Web.
+                  showControls: false,
                 ),
               ),
             ),
