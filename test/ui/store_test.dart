@@ -190,6 +190,41 @@ void main() {
       expect(store.agendamentos, AgendamentosFiltro.atendidos);
     });
 
+    test('sair de "Não atendidos" desliga o interruptor', () async {
+      final api = FakeApi(
+        pages: [],
+        clientsWithoutService: [
+          atendimentoJson(id: 9, situation: 'NaoVisitadoSemAgenda'),
+        ],
+      );
+      final store = buildStore(api);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+      expect(store.filter.showServices, isTrue);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.todos,
+      );
+      expect(store.filter.showServices, isFalse);
+      expect(store.services, isEmpty);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+      expect(store.filter.showServices, isTrue);
+
+      await store.load(
+        start: period,
+        agendamentosFilter: AgendamentosFiltro.atendidos,
+      );
+      expect(store.filter.showServices, isFalse);
+    });
+
     test('clientes sem atendimento (id 0) não são deduplicados', () async {
       final api = FakeApi(
         pages: [],

@@ -152,6 +152,45 @@ void main() {
       expect(store.markers, hasLength(22));
       expect(store.hasMore, isFalse);
     });
+
+    test('trocar para "Vazio" ou "Atendidos" desmarca o interruptor', () async {
+      final api = buildApi();
+      final store = buildStore(api);
+
+      await store.load(
+        start: inicio,
+        end: fim,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+      expect(store.filter.showServices, isTrue);
+
+      await store.load(
+        start: inicio,
+        end: fim,
+        agendamentosFilter: AgendamentosFiltro.todos,
+      );
+
+      expect(store.filter.showServices, isFalse);
+      expect(store.rows, isEmpty);
+      expect(store.markers, isEmpty);
+      expect(store.clients, hasLength(550), reason: 'os dados continuam lá');
+
+      await store.load(
+        start: inicio,
+        end: fim,
+        agendamentosFilter: AgendamentosFiltro.naoAtendidos,
+      );
+      expect(store.filter.showServices, isTrue);
+
+      await store.load(
+        start: inicio,
+        end: fim,
+        agendamentosFilter: AgendamentosFiltro.atendidos,
+      );
+
+      expect(store.filter.showServices, isFalse);
+      expect(store.rows, isEmpty);
+    });
   });
 
   group('"Vazio" com atendimentos e clientes sem atendimento juntos', () {

@@ -179,3 +179,11 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - A grade segue com uma linha por dia (550 na fixture real) e o mapa com um
   pino por cliente (22) quando o interruptor está ligado.
 - 93 testes.
+
+## 0.1.14 — 2025-11-25
+
+- Ao trocar o filtro **Agendamentos** de "Não Atendidos" para **"Vazio"** ou
+  **"Atendidos"**, o interruptor **"Cliente sem agenda"** é desmarcado
+  automaticamente — ele tinha sido ligado pelo próprio "Não Atendidos". A
+  escolha manual do usuário em "Vazio"/"Atendidos" continua preservada.
+- 95 testes.

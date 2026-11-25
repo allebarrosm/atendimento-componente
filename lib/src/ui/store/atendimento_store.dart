@@ -249,6 +249,7 @@ abstract class AtendimentoStoreBase with Store {
     clientName = clientNameValue;
     serviceType = type;
     modality = modalityValue;
+    final agendamentosAnterior = agendamentos;
     if (agendamentosFilter != null) agendamentos = agendamentosFilter;
 
     // O interruptor "cliente sem agenda" nasce **desmarcado**: os clientes de
@@ -256,9 +257,15 @@ abstract class AtendimentoStoreBase with Store {
     // liga o interruptor ou escolhe "Não Atendidos" (aí sim a lista inteira é
     // de clientes sem agenda, e o pacote liga o interruptor para ela não vir
     // vazia).
-    if (agendamentos == AgendamentosFiltro.naoAtendidos &&
-        !filter.showServices) {
-      filter = filter.copyWith(showServices: true);
+    if (agendamentos == AgendamentosFiltro.naoAtendidos) {
+      if (!filter.showServices) {
+        filter = filter.copyWith(showServices: true);
+      }
+    } else if (agendamentosAnterior == AgendamentosFiltro.naoAtendidos &&
+        filter.showServices) {
+      // Saiu de "Não Atendidos" (para "Vazio" ou "Atendidos"): desliga o
+      // interruptor que tinha sido ligado junto com aquele filtro.
+      filter = filter.copyWith(showServices: false);
     }
 
     loading = true;

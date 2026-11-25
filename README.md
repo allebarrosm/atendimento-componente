@@ -99,7 +99,7 @@ lib/
       atendimento_screen.dart           # Scaffold de conveniência
 assets/images/               # 9 ícones (iguais nos 2 apps)
 example/                     # demo Android/Web
-test/                        # 93 testes
+test/                        # 95 testes
 ```
 
 Regra de dependência: `core` não importa Flutter; `data` importa `core`; `ui`
@@ -269,7 +269,8 @@ O interruptor **Cliente sem agenda** nasce **desmarcado**: as linhas de
 `GetClientesSemAtendimento` (situação `NaoVisitadoSemAgenda`) são carregadas,
 mas só entram no mapa/grade quando o usuário o marca. A exceção é o filtro
 **"Não Atendidos"**, que o liga sozinho — nesse modo a lista inteira é de
-clientes sem agenda e viria vazia sem ele.
+clientes sem agenda e viria vazia sem ele. Ao trocar de "Não Atendidos" para
+**"Vazio"** ou **"Atendidos"**, o interruptor é desmarcado automaticamente.
 
 O endpoint devolve **uma linha por dia** do período (`Id` repetido, porque é o
 id do cliente). Por isso:
