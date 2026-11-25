@@ -1,5 +1,4 @@
 import 'package:atendimento/atendimento.dart';
-import 'package:atendimento/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

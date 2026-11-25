@@ -2,7 +2,7 @@ name: atendimento
 description: >-
   Componente compartilhado de Atendimento (mapa, marcadores, filtros,
   estatísticas, cards e grid) para Gestão e BackOffice. Android e Web.
-version: 0.1.1
+version: 0.1.2
 publish_to: none
 
 environment:

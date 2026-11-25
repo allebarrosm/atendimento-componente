@@ -9,5 +9,6 @@ export 'src/ui/widgets/atendimento_filter_panel.dart';
 export 'src/ui/widgets/atendimento_grid.dart';
 export 'src/ui/widgets/atendimento_legend.dart';
 export 'src/ui/widgets/atendimento_legend_bar.dart';
+export 'src/ui/widgets/atendimento_stats_header.dart';
 export 'src/ui/widgets/atendimento_stats_panel.dart';
 export 'src/ui/widgets/coordinate_editor_bar.dart';

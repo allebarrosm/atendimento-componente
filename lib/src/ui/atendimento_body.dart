@@ -12,12 +12,12 @@ import 'package:roteiro/ui.dart'
         RoteiroMapController;
 
 import '../core/atendimento.dart';
-import '../core/atendimento_format.dart';
 import 'store/atendimento_store.dart';
 import 'widgets/atendimento_card.dart';
 import 'widgets/atendimento_filter_panel.dart';
 import 'widgets/atendimento_grid.dart';
 import 'widgets/atendimento_legend_bar.dart';
+import 'widgets/atendimento_stats_header.dart';
 import 'widgets/atendimento_stats_panel.dart';
 import 'widgets/coordinate_editor_bar.dart';
 
@@ -44,6 +44,7 @@ class AtendimentoBody extends StatefulWidget {
     this.layout,
     this.gridBuilder,
     this.enableStreetView = true,
+    this.showFilterButton = true,
     this.initialZoom = 5,
   });
 
@@ -57,6 +58,11 @@ class AtendimentoBody extends StatefulWidget {
       gridBuilder;
 
   final bool enableStreetView;
+
+  /// Botão de filtros que o mapa desenha no mobile. O Gestão usa o atalho da
+  /// própria barra (três barras) e desliga este.
+  final bool showFilterButton;
+
   final double initialZoom;
 
   @override
@@ -163,7 +169,10 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
 
     return Column(
       children: [
-        AtendimentoStatsHeader(items: _headerItems()),
+        AtendimentoStatsHeader(
+          statistics: widget.store.statistics,
+          counters: widget.store.counters,
+        ),
         Expanded(
           child: rows.isEmpty
               ? Center(
@@ -209,27 +218,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
         ),
       ],
     );
-  }
-
-  List<MapEntry<String, String?>> _headerItems() {
-    final stats = widget.store.statistics;
-    final counters = widget.store.counters;
-    return [
-      MapEntry('Atendimentos', _count(stats?.grandTotal)),
-      MapEntry('Vendas', _count(stats?.totalSales)),
-      MapEntry('Sem Vendas', _count(stats?.totalNoSales)),
-      MapEntry('Orçamento', _count(stats?.totalBudget)),
-      MapEntry('Presencial', _count(stats?.totalOnsite)),
-      MapEntry('Remotas', _count(stats?.totalRemote)),
-      MapEntry('Agenda', _count(counters.scheduled)),
-      MapEntry('Atendidos', _count(counters.visited)),
-      MapEntry('Não Atendidos', _count(counters.notVisited)),
-    ];
-  }
-
-  String? _count(int? value) {
-    if (value == null || value == 0) return null;
-    return formatCount(value);
   }
 
   // ------------------------------------------------------------------ web
@@ -331,14 +319,16 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   onTap: () => store.setMap(false),
                 )
               : null,
-          customButtonRight: _layout == AtendimentoLayout.mobile
-              ? RoteiroMapButton(
-                  icon: Icons.filter_list,
-                  tooltip: 'Filtros',
-                  active: _showFilters,
-                  onTap: () => setState(() => _showFilters = !_showFilters),
-                )
-              : null,
+          customButtonRight:
+              _layout == AtendimentoLayout.mobile && widget.showFilterButton
+                  ? RoteiroMapButton(
+                      icon: Icons.filter_list,
+                      tooltip: 'Filtros',
+                      active: _showFilters,
+                      onTap: () =>
+                          setState(() => _showFilters = !_showFilters),
+                    )
+                  : null,
           onMapTap: (_) => store.clearSelection(),
         ),
         if (_layout == AtendimentoLayout.web) _buildMapPills(context),

@@ -70,3 +70,15 @@ Ajustes de layout para ficar idêntico ao BackOffice no Web.
 
 - Removida a faixa laranja de carregamento do topo do mapa (o mapa já não sai
   da tela ao filtrar; a atualização acontece sem barra).
+
+## 0.1.2 — 2025-11-25
+
+Ajustes do mobile.
+
+- Cards de indicadores no mobile iguais aos do Gestão: duas caixas com borda,
+  "Clientes" com seta para expandir/recolher, "Agendados/Sem Vendas/Orçamento/
+  Presencial/Remoto" e a caixa de agenda (Agenda/Atendidos/Não Atendidos), com
+  os mesmos ícones/cores e valores com separador de milhar.
+- `AtendimentoBody` ganhou `showFilterButton` (default `true`). O Gestão passa
+  `false` e abre os interruptores pelo atalho da barra superior, que agora
+  funciona também sobre o mapa.
