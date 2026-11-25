@@ -12,7 +12,7 @@ class AtendimentoGrid extends StatelessWidget {
     this.onRowTap,
     this.onLoadMore,
     this.loadingMore = false,
-    this.emptyMessage = 'Selecione as opções no filtro para exibir os atendimentos',
+    this.emptyMessage = '',
   });
 
   final List<Atendimento> rows;
@@ -25,6 +25,8 @@ class AtendimentoGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (rows.isEmpty) {
+      // Sem linhas não exibimos nada (nem mensagem de vazio).
+      if (emptyMessage.isEmpty) return const SizedBox.shrink();
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),

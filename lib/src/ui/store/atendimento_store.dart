@@ -625,7 +625,3 @@ abstract class AtendimentoStoreBase with Store {
     return code.isEmpty ? atendimento.corporateName : code;
   }
 }
-
-/// Mensagem de erro padrão usada pelos apps quando o filtro não retorna nada.
-const String emptyAtendimentoMessage =
-    'Selecione as opções no filtro para exibir os atendimentos';

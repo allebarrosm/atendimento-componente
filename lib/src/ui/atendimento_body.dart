@@ -161,15 +161,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
         ),
         Expanded(
           child: rows.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      emptyAtendimentoMessage,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
+              // Sem atendimentos não exibimos nada (o usuário não pediu aviso).
+              ? const SizedBox.shrink()
               : ListView.builder(
                   itemCount: rows.length,
                   itemBuilder: (context, index) {

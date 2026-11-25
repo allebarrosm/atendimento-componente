@@ -96,3 +96,8 @@ Ajustes do mobile.
   atalho é o da barra do app. Ele aparece só na **tela cheia**, que passou a ser
   desenhada pelo pacote (mapa com câmera própria, botão de fechar e o filtro
   abrindo em bottom sheet).
+
+## 0.1.5 — 2025-11-25
+
+- Sem atendimentos, a tela não exibe mais a mensagem "Selecione as opções no
+  filtro para exibir os atendimentos": lista e grade ficam simplesmente vazias.
