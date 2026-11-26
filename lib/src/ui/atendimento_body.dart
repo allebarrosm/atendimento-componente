@@ -287,17 +287,17 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           // garante que todos os pontos filtrados fiquem plotados.
           clustering: false,
           streetViewTarget: store.streetViewCoord,
-          infoWindow: selected == null || !store.showInfoWindow
+          // A janela de detalhes (Data/Cliente/CNPJ...) é só do Web. No
+          // mobile o pino selecionado mostra apenas o card de Street View.
+          infoWindow: _layout != AtendimentoLayout.web ||
+                  selected == null ||
+                  !store.showInfoWindow
               ? null
               : RoteiroInfoWindowData(
                   title: selected.displayName,
                   subtitle: selected.address,
-                  rows: selected.toViewRows(
-                    compact: _layout == AtendimentoLayout.mobile,
-                  ),
+                  rows: selected.toViewRows(),
                 ),
-          // Fechar a janela de detalhes não tira a seleção: o card de Street
-          // View (mobile) continua no rodapé, como no Gestão antigo.
           onCloseInfoWindow: store.closeInfoWindow,
           // No Web não há card: o panorama abre pela pílula ao lado de
           // "Satélite". No mobile o card fica no rodapé, como no Gestão.
@@ -382,14 +382,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                     initialZoom: _mapController.lastZoom ?? widget.initialZoom,
                     clustering: false,
                     streetViewTarget: store.streetViewCoord,
-                    infoWindow: selected == null || !store.showInfoWindow
-                        ? null
-                        : RoteiroInfoWindowData(
-                            title: selected.displayName,
-                            subtitle: selected.address,
-                            rows: selected.toViewRows(compact: true),
-                          ),
-                    onCloseInfoWindow: store.closeInfoWindow,
+                    // Mobile também não mostra a janela de detalhes aqui.
                     detailsCard: _detailsCard(context, selected, fullController),
                     showDetailsCard: selected != null &&
                         store.streetViewCoord != null,

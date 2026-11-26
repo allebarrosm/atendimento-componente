@@ -243,3 +243,10 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - No mobile o botão de **tela cheia** passou para o **canto inferior direito**;
   o topo direito fica só com os botões de satélite/Street View do mapa.
 - 99 testes.
+
+## 0.1.20 — 2025-11-26
+
+- No **mobile** o mapa não mostra mais a janela de detalhes do pino (o card
+  escuro com Data/Cliente/CNPJ/Endereço). O ponto selecionado exibe apenas o
+  card de Street View no rodapé. No Web a janela de detalhes continua.
+- 99 testes.
