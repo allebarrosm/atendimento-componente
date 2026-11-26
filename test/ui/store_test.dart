@@ -509,6 +509,35 @@ void main() {
       expect(api.updates, isEmpty);
     });
 
+    test('arrastar pinta o pino de vermelho e ao soltar volta ao alvo',
+        () async {
+      final store = buildStore(
+        FakeApi(pages: [
+          [atendimentoJson(id: 1)],
+        ]),
+      );
+      await store.load();
+      await store.setCoordinateEditing(true);
+
+      final red = await store.markerFactory.coordinateSelectedIcon;
+      final blue = await store.markerFactory.coordinateIcon;
+
+      Marker cliente() => store.markers.firstWhere(
+            (marker) =>
+                marker.markerId.value.startsWith('VisitadoComAgenda_'),
+          );
+
+      cliente().onDragStart!(cliente().position);
+      await pumpEventQueue();
+
+      expect(cliente().icon, same(red));
+
+      cliente().onDragEnd!(const LatLng(-9.0, -35.0));
+      await pumpEventQueue();
+
+      expect(cliente().icon, same(blue));
+    });
+
     test('ligar o modo deixa os pinos de cliente arrastáveis', () async {
       final store = buildStore(
         FakeApi(pages: [

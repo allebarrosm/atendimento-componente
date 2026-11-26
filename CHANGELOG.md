@@ -304,3 +304,9 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - O panorama do card de confirmação usa a coordenada **do cliente** (a que está
   sendo alterada), e não a do atendimento.
 - 103 testes.
+
+## 0.1.27 — 2025-11-26
+
+- Pino do cliente no modo de alteração: fica **vermelho** enquanto é arrastado
+  e volta ao **alvo azul** ao soltar, como no BackOffice antigo.
+- 104 testes.

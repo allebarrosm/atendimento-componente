@@ -318,7 +318,8 @@ fluxo:
    dados do cliente (nome, endereço e coordenada) à direita e o botão
    **Mudar Coordenada**;
 3. o botão abre um diálogo para digitar o novo endereço (geocodificado);
-   arrastar o pino também move a coordenada;
+   arrastar o pino também move a coordenada (ele fica **vermelho** durante o
+   arrasto e volta ao alvo azul ao soltar);
 4. com a coordenada alterada o botão vira **Confirmar mudança**, que grava em
    `POST /api/endereco/cordenadas`.
 

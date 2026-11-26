@@ -629,8 +629,12 @@ abstract class AtendimentoStoreBase with Store {
           ),
           zIndexInt: isEditing ? 1000 : 0,
           draggable: coordinateEditing && !savingCoordinate,
+          // Enquanto arrasta o pino fica vermelho; ao soltar volta ao alvo
+          // azul (como no BackOffice antigo).
+          onDragStart: (_) => _markDragging(markerId, dragging: true),
           onDragEnd: (newCoord) {
             if (!enableCoordinateEditing) return;
+            _markDragging(markerId, dragging: false);
             startCoordinateEdit(atendimento);
             moveEditingCoordinate(newCoord);
           },
@@ -695,6 +699,27 @@ abstract class AtendimentoStoreBase with Store {
 
     this.markers = ObservableList.of(markers.toList());
     this.polylines = polylines;
+  }
+
+  /// Troca só o ícone do pino do cliente: vermelho durante o arrasto e alvo
+  /// azul quando solta.
+  Future<void> _markDragging(
+    MarkerId markerId, {
+    required bool dragging,
+  }) async {
+    if (markers.indexWhere((marker) => marker.markerId == markerId) < 0) {
+      return;
+    }
+
+    final icon = await _iconOrFallback(
+      dragging
+          ? markerFactory.coordinateSelectedIcon
+          : markerFactory.coordinateIcon,
+    );
+
+    final index = markers.indexWhere((marker) => marker.markerId == markerId);
+    if (index < 0) return;
+    markers[index] = markers[index].copyWith(iconParam: icon);
   }
 
   void _refreshEditingMarker() {
