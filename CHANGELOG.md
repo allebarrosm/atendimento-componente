@@ -223,3 +223,12 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - Ao trocar para a grade o panorama é fechado — ao voltar para o mapa ele não
   reaparece na coordenada antiga.
 - 97 testes.
+
+## 0.1.18 — 2025-11-26
+
+- Corrige o crash no Android `Unknown marker ID "..." in onTap` ao tocar num
+  pino: o agrupamento por zoom do `roteiro` remove marcadores da lista visível
+  a cada mudança de câmera, e o toque chegava com um id que já não existia.
+  O Atendimento passou a usar `clustering: false` — todos os pontos filtrados
+  ficam plotados (no Web já era assim) e o toque sempre encontra o marcador.
+- 97 testes.

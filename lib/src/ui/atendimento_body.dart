@@ -278,7 +278,11 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           polylines: store.polylines,
           titles: store.showClient ? store.titles.toList() : const [],
           initialZoom: widget.initialZoom,
-          clustering: !store.canEditCoordinate,
+          // Sem o agrupamento por zoom do `roteiro`: ele tira marcadores da
+          // lista a cada mudança de câmera, e o toque chegava com um id que já
+          // não existia ("Unknown marker ID ... in onTap" no Android). Também
+          // garante que todos os pontos filtrados fiquem plotados.
+          clustering: false,
           streetViewTarget: store.streetViewCoord,
           infoWindow: selected == null
               ? null
