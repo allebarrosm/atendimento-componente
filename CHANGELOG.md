@@ -318,3 +318,10 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   quando a coordenada já foi alterada (endereço ou arrasto) ele grava a
   mudança, senão abre o diálogo do novo endereço.
 - 104 testes.
+
+## 0.1.29 — 2025-11-26
+
+- `AtendimentoRepository.fetchStatistics` não chama a API quando ainda não há
+  período (filtro não aplicado). A resposta de erro virava o toast
+  "Ocorreu um erro. ()" no BackOffice.
+- 105 testes.

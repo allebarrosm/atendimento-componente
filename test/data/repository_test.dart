@@ -320,6 +320,20 @@ void main() {
       expect(api.lastStatisticsParams!['dataInicio'], '2026-11-01 00:00:00');
     });
 
+    test('sem período não consulta as estatísticas', () async {
+      final api = FakeApi(
+        statistics: const <String, dynamic>{'TotalGeral': 10},
+      );
+      final repository = AtendimentoRepository(api);
+
+      final result = await repository.fetchStatistics(
+        const AtendimentoQuery(),
+      );
+
+      expect(result.isSuccess, isFalse);
+      expect(api.lastStatisticsParams, isNull);
+    });
+
     test('estatísticas com erro devolvem mensagem', () async {
       final api = FakeApi(failStatistics: true);
       final repository = AtendimentoRepository(api);

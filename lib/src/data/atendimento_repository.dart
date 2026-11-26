@@ -190,6 +190,14 @@ class AtendimentoRepository {
   Future<AtendimentoResult<AtendimentoStatistics>> fetchStatistics(
     AtendimentoQuery query,
   ) async {
+    // Sem período (= filtro ainda não aplicado) não consulta: a API responde
+    // com erro e o app mostrava "Ocorreu um erro. ()".
+    if (query.startDate == null) {
+      return const AtendimentoResult.error(
+        'Sem período para as estatísticas.',
+      );
+    }
+
     final response = await api.getStatistics(query.statisticsParams());
     if (!response.success) {
       return AtendimentoResult.error(
