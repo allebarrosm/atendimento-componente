@@ -155,6 +155,11 @@ abstract class AtendimentoStoreBase with Store {
   @observable
   LatLng? streetViewCoord;
 
+  /// Janela de detalhes do pino selecionado (o card de Street View continua
+  /// visível quando ela é fechada, como no Gestão/BackOffice antigos).
+  @observable
+  bool showInfoWindow = false;
+
   /// Lista (mobile) x mapa (web e mobile).
   @observable
   bool isMap = false;
@@ -387,6 +392,7 @@ abstract class AtendimentoStoreBase with Store {
   }) {
     selected = atendimento;
     selectedMarkerId = markerId;
+    showInfoWindow = true;
     // O Street View abre no ponto do pino clicado, como no BackOffice: a
     // coordenada do atendimento quando o pino é o dele e a do cliente quando
     // é o pino do cliente. Antes a ordem era sempre "cliente primeiro", o que
@@ -397,10 +403,15 @@ abstract class AtendimentoStoreBase with Store {
     if (coord != null) streetViewCoord = coord;
   }
 
+  /// Fecha só a janela de detalhes; a seleção (e o card) continua.
+  @action
+  void closeInfoWindow() => showInfoWindow = false;
+
   @action
   void clearSelection() {
     selected = null;
     selectedMarkerId = null;
+    showInfoWindow = false;
     streetViewCoord = null;
     if (editing != null && !savingCoordinate) {
       unawaited(cancelCoordinateEdit());

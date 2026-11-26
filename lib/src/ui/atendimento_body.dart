@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:roteiro/ui.dart'
     show
+        RoteiroCircleButton,
         RoteiroInfoWindowData,
         RoteiroMap,
         RoteiroMapButton,
@@ -17,6 +19,7 @@ import 'widgets/atendimento_grid.dart';
 import 'widgets/atendimento_legend_bar.dart';
 import 'widgets/atendimento_stats_header.dart';
 import 'widgets/atendimento_stats_panel.dart';
+import 'widgets/atendimento_street_view_card.dart';
 import 'widgets/coordinate_editor_bar.dart';
 
 /// Layout usado pela tela.
@@ -284,7 +287,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           // garante que todos os pontos filtrados fiquem plotados.
           clustering: false,
           streetViewTarget: store.streetViewCoord,
-          infoWindow: selected == null
+          infoWindow: selected == null || !store.showInfoWindow
               ? null
               : RoteiroInfoWindowData(
                   title: selected.displayName,
@@ -293,9 +296,18 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                     compact: _layout == AtendimentoLayout.mobile,
                   ),
                 ),
-          onCloseInfoWindow: store.clearSelection,
-          // Não há card de Street View: o panorama abre pelo botão do mapa —
-          // a pílula ao lado de "Satélite" no Web e o botão do canto no mobile.
+          // Fechar a janela de detalhes não tira a seleção: o card de Street
+          // View (mobile) continua no rodapé, como no Gestão antigo.
+          onCloseInfoWindow: store.closeInfoWindow,
+          // No Web não há card: o panorama abre pela pílula ao lado de
+          // "Satélite". No mobile o card fica no rodapé, como no Gestão.
+          detailsCard: _layout == AtendimentoLayout.mobile
+              ? _detailsCard(context, selected, _mapController)
+              : null,
+          showDetailsCard: _layout == AtendimentoLayout.mobile &&
+              selected != null &&
+              store.streetViewCoord != null,
+          onCloseDetails: store.clearSelection,
           // No Web os botões de mapa/Street View viram as pílulas do topo.
           showMapTypeButton: _layout == AtendimentoLayout.mobile,
           showStreetViewButton:
@@ -309,15 +321,19 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                   onTap: () => store.setMap(false),
                 )
               : null,
-          customButtonRight: _layout == AtendimentoLayout.mobile
-              ? RoteiroMapButton(
-                  icon: Icons.fullscreen,
-                  tooltip: 'Tela cheia',
-                  onTap: _openFullscreenMap,
-                )
-              : null,
-          onMapTap: (_) => store.clearSelection(),
+          onMapTap: (_) => store.closeInfoWindow(),
         ),
+        // Tela cheia no canto inferior direito (mobile), como no Gestão.
+        if (_layout == AtendimentoLayout.mobile)
+          Positioned(
+            right: 12,
+            bottom: 12,
+            child: RoteiroCircleButton(
+              icon: Icons.fullscreen,
+              tooltip: 'Tela cheia',
+              onTap: _openFullscreenMap,
+            ),
+          ),
         if (_layout == AtendimentoLayout.web) _buildMapPills(context),
         if (store.canEditCoordinate && store.editing != null)
           Positioned(
@@ -366,14 +382,18 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                     initialZoom: _mapController.lastZoom ?? widget.initialZoom,
                     clustering: false,
                     streetViewTarget: store.streetViewCoord,
-                    infoWindow: selected == null
+                    infoWindow: selected == null || !store.showInfoWindow
                         ? null
                         : RoteiroInfoWindowData(
                             title: selected.displayName,
                             subtitle: selected.address,
                             rows: selected.toViewRows(compact: true),
                           ),
-                    onCloseInfoWindow: store.clearSelection,
+                    onCloseInfoWindow: store.closeInfoWindow,
+                    detailsCard: _detailsCard(context, selected, fullController),
+                    showDetailsCard: selected != null &&
+                        store.streetViewCoord != null,
+                    onCloseDetails: store.clearSelection,
                     showFullScreenButton: false,
                     customButton: RoteiroMapButton(
                       icon: Icons.close,
@@ -387,7 +407,7 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                             onTap: () => _openFilterSheet(dialogContext),
                           )
                         : null,
-                    onMapTap: (_) => store.clearSelection(),
+                    onMapTap: (_) => store.closeInfoWindow(),
                   ),
                   if (store.canEditCoordinate && store.editing != null)
                     Positioned(
@@ -519,6 +539,35 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           ),
         ),
       ),
+    );
+  }
+
+  LatLng? _selectionCoordinate(Atendimento? selected) {
+    if (selected == null) return null;
+    final coord = selected.serviceLocation ?? selected.clientLocation;
+    if (coord == null) return null;
+    return LatLng(coord.latitude, coord.longitude);
+  }
+
+  /// Card de Street View do rodapé (mobile). Usa a mesma coordenada do botão
+  /// de Street View — o ponto exato do pino clicado.
+  Widget? _detailsCard(
+    BuildContext context,
+    Atendimento? selected,
+    RoteiroMapController controller,
+  ) {
+    final coordinate = widget.store.streetViewCoord ??
+        _selectionCoordinate(selected);
+    if (coordinate == null) return null;
+
+    return AtendimentoStreetViewCard(
+      coordinate: coordinate,
+      verify: (coord) async {
+        final result = await controller.streetViewService.verify(coord);
+        return result.available;
+      },
+      onOpen: () => controller.openStreetView(coordinate),
+      onClose: widget.store.clearSelection,
     );
   }
 }

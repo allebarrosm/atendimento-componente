@@ -473,6 +473,22 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
     });
   }
 
+  late final _$showInfoWindowAtom =
+      Atom(name: 'AtendimentoStoreBase.showInfoWindow', context: context);
+
+  @override
+  bool get showInfoWindow {
+    _$showInfoWindowAtom.reportRead();
+    return super.showInfoWindow;
+  }
+
+  @override
+  set showInfoWindow(bool value) {
+    _$showInfoWindowAtom.reportWrite(value, super.showInfoWindow, () {
+      super.showInfoWindow = value;
+    });
+  }
+
   late final _$isMapAtom =
       Atom(name: 'AtendimentoStoreBase.isMap', context: context);
 
@@ -707,6 +723,17 @@ mixin _$AtendimentoStore on AtendimentoStoreBase, Store {
   }
 
   @override
+  void closeInfoWindow() {
+    final _$actionInfo = _$AtendimentoStoreBaseActionController.startAction(
+        name: 'AtendimentoStoreBase.closeInfoWindow');
+    try {
+      return super.closeInfoWindow();
+    } finally {
+      _$AtendimentoStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void clearSelection() {
     final _$actionInfo = _$AtendimentoStoreBaseActionController.startAction(
         name: 'AtendimentoStoreBase.clearSelection');
@@ -771,6 +798,7 @@ titles: ${titles},
 selected: ${selected},
 selectedMarkerId: ${selectedMarkerId},
 streetViewCoord: ${streetViewCoord},
+showInfoWindow: ${showInfoWindow},
 isMap: ${isMap},
 coordinateEditing: ${coordinateEditing},
 editing: ${editing},

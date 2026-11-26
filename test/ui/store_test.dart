@@ -551,6 +551,35 @@ void main() {
     });
   });
 
+  group('AtendimentoStore janela de detalhes', () {
+    test('fechar a janela não tira a seleção nem o card', () async {
+      final store = buildStore(
+        FakeApi(pages: [
+          [atendimentoJson(id: 1)],
+        ]),
+      );
+      await store.load();
+
+      final atendimento = store.clients.single;
+      store.select(atendimento);
+
+      expect(store.showInfoWindow, isTrue);
+      expect(store.selected, same(atendimento));
+
+      store.closeInfoWindow();
+
+      expect(store.showInfoWindow, isFalse);
+      expect(store.selected, same(atendimento));
+      expect(store.streetViewCoord, isNotNull);
+
+      store.clearSelection();
+
+      expect(store.selected, isNull);
+      expect(store.showInfoWindow, isFalse);
+      expect(store.streetViewCoord, isNull);
+    });
+  });
+
   group('AtendimentoTitleFactory', () {
     test('numera o atendimento e omite "sem agenda e não atendido"', () {
       const factory = AtendimentoTitleFactory();

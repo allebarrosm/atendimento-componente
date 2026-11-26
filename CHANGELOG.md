@@ -232,3 +232,14 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   O Atendimento passou a usar `clustering: false` — todos os pontos filtrados
   ficam plotados (no Web já era assim) e o toque sempre encontra o marcador.
 - 97 testes.
+
+## 0.1.19 — 2025-11-26
+
+- O card de Street View volta **só no mobile** (no Web continua sem card,
+  abrindo pela pílula ao lado de "Satélite").
+- Fechar a janela de detalhes (X ou toque no mapa) não tira mais a seleção: o
+  card continua no rodapé, como no Gestão antigo. Quem limpa a seleção é o X do
+  card.
+- No mobile o botão de **tela cheia** passou para o **canto inferior direito**;
+  o topo direito fica só com os botões de satélite/Street View do mapa.
+- 99 testes.
