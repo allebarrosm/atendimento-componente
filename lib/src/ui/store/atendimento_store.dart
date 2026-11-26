@@ -617,12 +617,15 @@ abstract class AtendimentoStoreBase with Store {
         Marker(
           markerId: markerId,
           position: position,
-          // O pino mantém o ícone da situação mesmo no modo de edição; só o
-          // cliente que está sendo editado ganha o ícone de alvo.
+          // No modo de alteração todos os clientes viram alvo (como no
+          // BackOffice antigo); o que está sendo arrastado usa o alvo
+          // selecionado. Fora do modo, fica o ícone da situação.
           icon: await _iconOrFallback(
             isEditing
                 ? markerFactory.coordinateSelectedIcon
-                : markerFactory.forClient(atendimento),
+                : coordinateEditing
+                    ? markerFactory.coordinateIcon
+                    : markerFactory.forClient(atendimento),
           ),
           zIndexInt: isEditing ? 1000 : 0,
           draggable: coordinateEditing && !savingCoordinate,

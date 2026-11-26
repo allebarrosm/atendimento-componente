@@ -509,6 +509,27 @@ void main() {
       expect(api.updates, isEmpty);
     });
 
+    test('ligar o modo deixa os pinos de cliente arrastáveis', () async {
+      final store = buildStore(
+        FakeApi(pages: [
+          [atendimentoJson(id: 1)],
+        ]),
+      );
+      await store.load();
+
+      Marker cliente() => store.markers.firstWhere(
+            (marker) =>
+                marker.markerId.value.startsWith('VisitadoComAgenda_'),
+          );
+
+      expect(cliente().draggable, isFalse);
+
+      await store.setCoordinateEditing(true);
+
+      expect(cliente().draggable, isTrue);
+      expect(store.canEditCoordinate, isTrue);
+    });
+
     test('edição nasce desligada; o botão do app liga', () async {
       final store = buildStore(FakeApi(pages: []));
 

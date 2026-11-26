@@ -313,7 +313,7 @@ coordenadas** do cabeçalho do app (`store.setCoordinateEditing`), que nasce
 desligado como no BackOffice antigo. No Android nunca é possível alterar. O
 fluxo:
 
-1. os pinos de cliente ficam arrastáveis e mantêm o ícone da situação;
+1. ao ligar o modo, os pinos de cliente viram **alvo** e ficam arrastáveis;
 2. ao arrastar um pino, abre a barra sobre o mapa com endereço, coordenada e
    **Salvar/Cancelar** (o mapa continua interativo);
 3. o botão **Localizar** geocodifica o endereço digitado;

@@ -277,3 +277,11 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   cabeçalho do app, chamando `store.setCoordinateEditing`. No Web o store
   continua nascendo com `coordinateEditing = false`.
 - 100 testes.
+
+## 0.1.24 — 2025-11-26
+
+- Ao ligar o modo de alteração de coordenada (botão "Alterar coordenadas"),
+  **todos os pinos de cliente viram o ícone de alvo** (como no BackOffice
+  antigo) e ficam arrastáveis. Antes só o pino em edição trocava de ícone, e
+  o mapa parecia não reagir ao botão.
+- 101 testes.
