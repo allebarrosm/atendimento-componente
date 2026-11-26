@@ -333,3 +333,10 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   a outra ponta) e responsiva — quando a janela diminui os itens quebram para
   a linha de baixo em vez de sair da tela.
 - 106 testes.
+
+## 0.1.31 — 2025-11-26
+
+- Legenda do mapa volta ao layout do BackOffice: **4 colunas alinhadas**
+  (duas linhas de itens) e agora **responsiva** — com a janela menor o número
+  de colunas cai (4 → 3 → 2 → 1) e os itens descem de linha, sem sair da tela.
+- 106 testes.
