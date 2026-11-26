@@ -184,6 +184,9 @@ abstract class AtendimentoStoreBase with Store {
 
   int _markerRequest = 0;
 
+  /// Último modo de "Agendamentos" que passou pelo `load` (detecção da troca).
+  AgendamentosFiltro _agendamentosCarregado = AgendamentosFiltro.todos;
+
   bool get showCard => selected != null;
 
   bool get canEditCoordinate =>
@@ -254,7 +257,6 @@ abstract class AtendimentoStoreBase with Store {
     clientName = clientNameValue;
     serviceType = type;
     modality = modalityValue;
-    final agendamentosAnterior = agendamentos;
     if (agendamentosFilter != null) agendamentos = agendamentosFilter;
 
     // O interruptor "cliente sem agenda" nasce **desmarcado**: os clientes de
@@ -262,16 +264,24 @@ abstract class AtendimentoStoreBase with Store {
     // liga o interruptor ou escolhe "Não Atendidos" (aí sim a lista inteira é
     // de clientes sem agenda, e o pacote liga o interruptor para ela não vir
     // vazia).
+    //
+    // A troca é medida contra o último modo **carregado** (e não contra o
+    // valor anterior do campo): o Gestão escreve `agendamentos` direto no
+    // store antes de chamar `load`, então o valor anterior já era o novo e a
+    // saída de "Não Atendidos" nunca era detectada.
+    final saiuDeNaoAtendidos =
+        _agendamentosCarregado == AgendamentosFiltro.naoAtendidos &&
+            agendamentos != AgendamentosFiltro.naoAtendidos;
     if (agendamentos == AgendamentosFiltro.naoAtendidos) {
       if (!filter.showServices) {
         filter = filter.copyWith(showServices: true);
       }
-    } else if (agendamentosAnterior == AgendamentosFiltro.naoAtendidos &&
-        filter.showServices) {
+    } else if (saiuDeNaoAtendidos && filter.showServices) {
       // Saiu de "Não Atendidos" (para "Vazio" ou "Atendidos"): desliga o
       // interruptor que tinha sido ligado junto com aquele filtro.
       filter = filter.copyWith(showServices: false);
     }
+    _agendamentosCarregado = agendamentos;
 
     loading = true;
     errorMessage = null;

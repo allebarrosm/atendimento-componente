@@ -225,6 +225,41 @@ void main() {
       expect(store.filter.showServices, isFalse);
     });
 
+    test('troca de modo sem passar o filtro no load (fluxo do Gestão)',
+        () async {
+      final api = FakeApi(
+        pages: [],
+        clientsWithoutService: [
+          atendimentoJson(id: 9, situation: 'NaoVisitadoSemAgenda'),
+        ],
+      );
+      final store = buildStore(api);
+
+      // O app escreve direto no store e chama load sem agendamentosFilter.
+      store.agendamentos = AgendamentosFiltro.naoAtendidos;
+      await store.load(start: period, end: period);
+
+      expect(store.filter.showServices, isTrue);
+      expect(store.rows, hasLength(1));
+
+      store.agendamentos = AgendamentosFiltro.todos;
+      await store.load(start: period, end: period);
+
+      expect(store.filter.showServices, isFalse);
+      expect(store.rows, isEmpty);
+      expect(store.clients, hasLength(1), reason: 'os dados continuam lá');
+
+      store.agendamentos = AgendamentosFiltro.naoAtendidos;
+      await store.load(start: period, end: period);
+      expect(store.filter.showServices, isTrue);
+
+      store.agendamentos = AgendamentosFiltro.atendidos;
+      await store.load(start: period, end: period);
+
+      expect(store.filter.showServices, isFalse);
+      expect(store.rows, isEmpty);
+    });
+
     test('clientes sem atendimento (id 0) não são deduplicados', () async {
       final api = FakeApi(
         pages: [],

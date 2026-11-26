@@ -99,7 +99,7 @@ lib/
       atendimento_screen.dart           # Scaffold de conveniência
 assets/images/               # 9 ícones (iguais nos 2 apps)
 example/                     # demo Android/Web
-test/                        # 95 testes
+test/                        # 100 testes
 ```
 
 Regra de dependência: `core` não importa Flutter; `data` importa `core`; `ui`

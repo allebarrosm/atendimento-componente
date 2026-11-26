@@ -250,3 +250,13 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   escuro com Data/Cliente/CNPJ/Endereço). O ponto selecionado exibe apenas o
   card de Street View no rodapé. No Web a janela de detalhes continua.
 - 99 testes.
+
+## 0.1.21 — 2025-11-26
+
+- Filtro **Agendamentos** no mobile: o Gestão escreve o modo direto no store
+  antes de chamar `load` (sem `agendamentosFilter`), então o store comparava o
+  valor com ele mesmo e não detectava a saída de "Não Atendidos" — o
+  interruptor "Cliente sem agenda" continuava ligado em "Vazio"/"Atendidos" e
+  o filtro parecia não responder. A troca agora é medida contra o último modo
+  **carregado**, igual ao Web.
+- 100 testes.
