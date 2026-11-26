@@ -42,9 +42,10 @@ abstract class AtendimentoStoreBase with Store {
               clientIconSize: kIsWeb ? 25 : 66,
               serviceIconSize: kIsWeb ? 25 : 50,
             ),
-        // No Web a edição já nasce ligada (o BackOffice não tem mais o botão
-        // de "Alterar coordenadas"); no Android nasce desligada.
-        coordinateEditing = enableCoordinateEditing;
+        // Nasce desligada: no BackOffice o botão "Alterar coordenadas" do
+        // painel lateral liga/desliga, como era no app antigo. No Android
+        // nunca liga.
+        coordinateEditing = false;
 
   final AtendimentoRepository repository;
 

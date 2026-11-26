@@ -509,8 +509,13 @@ void main() {
       expect(api.updates, isEmpty);
     });
 
-    test('edição já nasce ligada quando permitida (Web)', () async {
+    test('edição nasce desligada; o painel lateral liga', () async {
       final store = buildStore(FakeApi(pages: []));
+
+      expect(store.coordinateEditing, isFalse);
+      expect(store.canEditCoordinate, isFalse);
+
+      await store.setCoordinateEditing(true);
 
       expect(store.coordinateEditing, isTrue);
       expect(store.canEditCoordinate, isTrue);

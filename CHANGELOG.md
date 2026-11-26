@@ -260,3 +260,12 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   o filtro parecia não responder. A troca agora é medida contra o último modo
   **carregado**, igual ao Web.
 - 100 testes.
+
+## 0.1.22 — 2025-11-26
+
+- O interruptor **"Alterar coordenadas"** voltou ao painel lateral do Web
+  (BackOffice), como no app antigo. Ele nasce **desligado** e liga/desliga o
+  modo de arrastar o pino; no Android o interruptor não aparece.
+- `AtendimentoStatsPanel` recebeu `canEditCoordinate`, `coordinateEditing` e
+  `onToggleCoordinateEditing`.
+- 100 testes.

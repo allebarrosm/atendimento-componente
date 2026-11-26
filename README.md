@@ -10,9 +10,10 @@ grade, estatísticas e alteração de coordenada.
   cards + painel de filtros inferior).
 - **Web** → layout do **BackOffice** (mapa/grade + painel lateral de números +
   grade com as 11 colunas do BackOffice).
-- **Alteração de coordenada sempre ativa no Web** (`enableCoordinateEditing`),
-  com arrastar do pino, geocodificação por endereço e `Salvar/Cancelar` — sem
-  botão de ligar/desligar. No Android fica sempre inativa.
+- **Alteração de coordenada no Web** (`enableCoordinateEditing`), ligada pelo
+  interruptor **Alterar coordenadas** do painel lateral, com arrastar do pino,
+  geocodificação por endereço e `Salvar/Cancelar`. No Android fica sempre
+  inativa (o interruptor não aparece).
 - O `roteiro` já resolvido é reaproveitado para o mapa (`RoteiroMap`),
   `InfoWindow` e `DetailsCard` — o pacote não reimplementa a camada de mapa.
 
@@ -307,8 +308,9 @@ filtro de período/representante, chamando `store.load(...)` como hoje.
 
 ### 4. Alteração de coordenada (Web)
 
-Ligada por `enableCoordinateEditing: kIsWeb`, **sem botão de alternar**: no Web
-já nasce ativa, no Android nunca é possível alterar. O fluxo:
+Ligada por `enableCoordinateEditing: kIsWeb` e pelo interruptor **Alterar
+coordenadas** do painel lateral (nasce desligado, como no BackOffice antigo).
+No Android nunca é possível alterar. O fluxo:
 
 1. os pinos de cliente ficam arrastáveis e mantêm o ícone da situação;
 2. ao arrastar um pino, abre a barra sobre o mapa com endereço, coordenada e
@@ -326,7 +328,7 @@ No Android `saveCoordinate()` é bloqueado e os pinos não arrastam.
 |---|---|
 | Escopo | só Gestão + BackOffice (EASYMART registra, não monitora) |
 | Layout | Android = Gestão; Web = BackOffice (detectado por `kIsWeb`), com a barra de legenda/filtros embaixo do mapa |
-| Edição de coordenada | **sempre ativa no Web**, sempre bloqueada no Android (sem botão) |
+| Edição de coordenada | ligada pelo interruptor **Alterar coordenadas** no Web; sempre bloqueada no Android |
 | Estado | MobX (como os apps) |
 | Mapa | reaproveita `RoteiroMap` do pacote `roteiro` |
 | Filtro | situação **e** modalidade; "fora do cliente" é categoria própria |
