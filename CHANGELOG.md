@@ -347,3 +347,10 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   alinhado na coluna e o rótulo fica logo em seguida, sem o vão que o
   `Expanded` abria nos rótulos curtos.
 - 106 testes.
+
+## 0.1.33 — 2025-11-26
+
+- Legenda volta com o checkbox do lado direito de cada linha (como no
+  BackOffice), mantendo as 4 colunas alinhadas e a responsividade
+  (4 → 3 → 2 → 1 colunas conforme a janela diminui).
+- 106 testes.
