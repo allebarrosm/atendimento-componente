@@ -298,3 +298,9 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   do mobile e pelo card de confirmação do Web.
 - `CoordinateEditorBar` removido (substituído pelo card).
 - 103 testes.
+
+## 0.1.26 — 2025-11-26
+
+- O panorama do card de confirmação usa a coordenada **do cliente** (a que está
+  sendo alterada), e não a do atendimento.
+- 103 testes.

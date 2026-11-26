@@ -46,7 +46,8 @@ class AtendimentoCoordinateCard extends StatelessWidget {
                 (coord.latitude - original.latitude).abs() > 1e-9 ||
                 (coord.longitude - original.longitude).abs() > 1e-9);
 
-        final previewCoord = coord ?? _latLng(editing.locationForMap);
+        // A coordenada alterada é a do cliente; o panorama mostra esse ponto.
+        final previewCoord = coord ?? _latLng(editing.clientLocation);
 
         return Align(
           alignment: Alignment.bottomCenter,
