@@ -7,14 +7,16 @@ import '../theme/atendimento_theme.dart';
 
 /// Legenda com os 7 interruptores do mapa, na barra inferior do Web.
 ///
-/// Quatro colunas de mesma largura; dentro de cada uma o checkbox fica sempre
-/// na mesma posição (alinhado em grade), independente do tamanho do rótulo.
+/// Os itens são compactos (ícone + rótulo + checkbox logo em seguida) e usam
+/// `Wrap`: quando a janela diminui eles quebram para a linha de baixo em vez
+/// de sair da tela.
 class AtendimentoLegendBar extends StatelessWidget {
   const AtendimentoLegendBar({
     super.key,
     required this.filter,
     required this.onToggleSwitch,
     this.widthFactor = 0.84,
+    this.spacing = 12,
     this.itemHeight = 26,
   });
 
@@ -26,16 +28,19 @@ class AtendimentoLegendBar extends StatelessWidget {
   /// Mesma largura relativa usada pelo BackOffice (84% da tela).
   final double widthFactor;
 
-  /// Altura de cada linha: garante o alinhamento horizontal das colunas.
+  /// Espaço horizontal entre dois itens da mesma linha.
+  final double spacing;
+
+  /// Altura de cada item.
   final double itemHeight;
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
+    final screenWidth = MediaQuery.sizeOf(context).width;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final target = size.width * widthFactor;
+        final target = screenWidth * widthFactor;
         final width = constraints.maxWidth.isFinite
             ? (target < constraints.maxWidth ? target : constraints.maxWidth)
             : target;
@@ -44,70 +49,70 @@ class AtendimentoLegendBar extends StatelessWidget {
           width: width,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Wrap(
+              spacing: spacing,
+              runSpacing: 0,
               children: [
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.visitadoComAgenda,
-                    ),
-                    'Cliente agendado e atendido',
-                    filter.showCheckAndService,
-                    1,
+                _item(
+                  AtendimentoTheme.assetForSituation(
+                    AtendimentoSituacao.visitadoComAgenda,
                   ),
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.naoVisitadoComAgenda,
-                    ),
-                    'Cliente agendado e não atendido',
-                    filter.showCheckAndNotService,
-                    2,
+                  'Cliente agendado e atendido',
+                  filter.showCheckAndService,
+                  1,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForSituation(
+                    AtendimentoSituacao.naoVisitadoComAgenda,
                   ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.naoVisitadoSemAgenda,
-                    ),
-                    'Cliente sem agenda',
-                    filter.showServices,
-                    3,
+                  'Cliente agendado e não atendido',
+                  filter.showCheckAndNotService,
+                  2,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForSituation(
+                    AtendimentoSituacao.naoVisitadoSemAgenda,
                   ),
-                  _item(
-                    AtendimentoTheme.assetForSituation(
-                      AtendimentoSituacao.visitadoSemAgenda,
-                    ),
-                    'Cliente sem agenda e atendido',
-                    filter.showNotCheckAndService,
-                    4,
+                  'Cliente sem agenda',
+                  filter.showServices,
+                  3,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForSituation(
+                    AtendimentoSituacao.visitadoSemAgenda,
                   ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForModality(Modalidade.presencial),
-                    'Presencial',
-                    filter.showInPerson,
-                    5,
+                  'Cliente sem agenda e atendido',
+                  filter.showNotCheckAndService,
+                  4,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForModality(Modalidade.presencial),
+                  'Presencial',
+                  filter.showInPerson,
+                  5,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForModality(Modalidade.remoto),
+                  'Remoto',
+                  filter.showRemote,
+                  6,
+                  width,
+                ),
+                _item(
+                  AtendimentoTheme.assetForModality(
+                    Modalidade.presencial,
+                    farAway: true,
                   ),
-                  _item(
-                    AtendimentoTheme.assetForModality(Modalidade.remoto),
-                    'Remoto',
-                    filter.showRemote,
-                    6,
-                  ),
-                ]),
-                _column([
-                  _item(
-                    AtendimentoTheme.assetForModality(
-                      Modalidade.presencial,
-                      farAway: true,
-                    ),
-                    'Presencial fora do cliente',
-                    filter.showInPersonFarAway,
-                    7,
-                  ),
-                ]),
+                  'Presencial fora do cliente',
+                  filter.showInPersonFarAway,
+                  7,
+                  width,
+                ),
               ],
             ),
           ),
@@ -116,46 +121,48 @@ class AtendimentoLegendBar extends StatelessWidget {
     );
   }
 
-  Widget _column(List<Widget> items) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: items,
-      ),
-    );
-  }
-
-  Widget _item(String asset, String title, bool value, int switchValue) {
+  Widget _item(
+    String asset,
+    String title,
+    bool value,
+    int switchValue,
+    double maxWidth,
+  ) {
     return SizedBox(
       height: itemHeight,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(asset, width: 12, height: 12),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11),
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: () => onToggleSwitch(switchValue, !value),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(asset, width: 12, height: 12),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11),
+                ),
+              ),
+              const SizedBox(width: 2),
+              SizedBox(
+                height: 20,
+                width: 20,
+                child: Checkbox(
+                  value: value,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  onChanged: (newValue) =>
+                      onToggleSwitch(switchValue, newValue ?? false),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          SizedBox(
-            height: 20,
-            width: 20,
-            child: Checkbox(
-              value: value,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-              onChanged: (newValue) =>
-                  onToggleSwitch(switchValue, newValue ?? false),
-            ),
-          ),
-          const SizedBox(width: 20),
-        ],
+        ),
       ),
     );
   }

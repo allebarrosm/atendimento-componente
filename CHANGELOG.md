@@ -325,3 +325,11 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   período (filtro não aplicado). A resposta de erro virava o toast
   "Ocorreu um erro. ()" no BackOffice.
 - 105 testes.
+
+## 0.1.30 — 2025-11-26
+
+- Legenda do mapa no Web refeita com `Wrap`: itens compactos (ícone + rótulo +
+  checkbox logo em seguida, sem o espaço grande que empurrava o checkbox para
+  a outra ponta) e responsiva — quando a janela diminui os itens quebram para
+  a linha de baixo em vez de sair da tela.
+- 106 testes.
