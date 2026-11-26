@@ -340,3 +340,10 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   (duas linhas de itens) e agora **responsiva** — com a janela menor o número
   de colunas cai (4 → 3 → 2 → 1) e os itens descem de linha, sem sair da tela.
 - 106 testes.
+
+## 0.1.32 — 2025-11-26
+
+- Legenda: o checkbox passou para o **início** de cada linha. Ele continua
+  alinhado na coluna e o rótulo fica logo em seguida, sem o vão que o
+  `Expanded` abria nos rótulos curtos.
+- 106 testes.

@@ -154,17 +154,8 @@ class AtendimentoLegendBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset(asset, width: 12, height: 12),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11),
-            ),
-          ),
-          const SizedBox(width: 8),
+          // Checkbox no início da linha: fica alinhado na coluna e o texto
+          // começa logo em seguida (sem o vão que o `Expanded` criava).
           SizedBox(
             height: 20,
             width: 20,
@@ -174,6 +165,17 @@ class AtendimentoLegendBar extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               onChanged: (newValue) =>
                   onToggleSwitch(switchValue, newValue ?? false),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Image.asset(asset, width: 12, height: 12),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 11),
             ),
           ),
           const SizedBox(width: 4),
