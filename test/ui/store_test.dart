@@ -509,7 +509,7 @@ void main() {
       expect(api.updates, isEmpty);
     });
 
-    test('edição nasce desligada; o painel lateral liga', () async {
+    test('edição nasce desligada; o botão do app liga', () async {
       final store = buildStore(FakeApi(pages: []));
 
       expect(store.coordinateEditing, isFalse);

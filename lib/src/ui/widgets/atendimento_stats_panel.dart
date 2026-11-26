@@ -17,9 +17,6 @@ class AtendimentoStatsPanel extends StatelessWidget {
     required this.showClient,
     required this.onToggleMap,
     required this.onShowClient,
-    this.canEditCoordinate = false,
-    this.coordinateEditing = false,
-    this.onToggleCoordinateEditing,
     this.width = 180,
   });
 
@@ -31,11 +28,6 @@ class AtendimentoStatsPanel extends StatelessWidget {
 
   final VoidCallback onToggleMap;
   final void Function(bool value) onShowClient;
-
-  /// Alteração de coordenada (só no Web).
-  final bool canEditCoordinate;
-  final bool coordinateEditing;
-  final void Function(bool value)? onToggleCoordinateEditing;
 
   final double width;
 
@@ -89,28 +81,6 @@ class AtendimentoStatsPanel extends StatelessWidget {
               ],
             ),
           ),
-          if (canEditCoordinate && onToggleCoordinateEditing != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 5, right: 12),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Alterar coordenadas',
-                      style: TextStyle(fontSize: 13),
-                    ),
-                  ),
-                  Switch(
-                    value: coordinateEditing,
-                    onChanged: onToggleCoordinateEditing,
-                    activeThumbColor: Colors.white,
-                    activeTrackColor: Colors.black,
-                    inactiveThumbColor: Colors.black,
-                    inactiveTrackColor: Colors.white,
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );

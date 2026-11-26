@@ -243,10 +243,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                     widget.store.setMap(!widget.store.isMap);
                   },
                   onShowClient: widget.store.setShowClient,
-                  canEditCoordinate: widget.store.enableCoordinateEditing,
-                  coordinateEditing: widget.store.coordinateEditing,
-                  onToggleCoordinateEditing:
-                      widget.store.setCoordinateEditing,
                 ),
               ],
             ),

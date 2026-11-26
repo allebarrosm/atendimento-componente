@@ -269,3 +269,11 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - `AtendimentoStatsPanel` recebeu `canEditCoordinate`, `coordinateEditing` e
   `onToggleCoordinateEditing`.
 - 100 testes.
+
+## 0.1.23 — 2025-11-26
+
+- O interruptor "Alterar coordenadas" saiu do painel lateral: ele nunca existiu
+  no BackOffice antigo. Quem liga o modo é o botão **"Alterar coordenadas"** do
+  cabeçalho do app, chamando `store.setCoordinateEditing`. No Web o store
+  continua nascendo com `coordinateEditing = false`.
+- 100 testes.
