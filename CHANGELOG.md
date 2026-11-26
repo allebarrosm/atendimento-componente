@@ -285,3 +285,16 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
   antigo) e ficam arrastáveis. Antes só o pino em edição trocava de ícone, e
   o mapa parecia não reagir ao botão.
 - 101 testes.
+
+## 0.1.25 — 2025-11-26
+
+- Web: o **card de confirmação** da alteração de coordenada voltou no desenho do
+  BackOffice antigo — panorama à esquerda, dados do cliente (nome, endereço e
+  coordenada) à direita e o botão **Mudar Coordenada**, que vira **Confirmar
+  mudança** quando a coordenada muda. O X cancela a edição.
+- Tocar no pino do cliente com o modo ligado já abre o card (não precisa
+  arrastar); a janela de detalhes fica escondida durante a edição.
+- `AtendimentoStreetViewPreview` extraído: a mesma miniatura é usada pelo card
+  do mobile e pelo card de confirmação do Web.
+- `CoordinateEditorBar` removido (substituído pelo card).
+- 103 testes.

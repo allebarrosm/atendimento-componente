@@ -20,7 +20,7 @@ import 'widgets/atendimento_legend_bar.dart';
 import 'widgets/atendimento_stats_header.dart';
 import 'widgets/atendimento_stats_panel.dart';
 import 'widgets/atendimento_street_view_card.dart';
-import 'widgets/coordinate_editor_bar.dart';
+import 'widgets/atendimento_coordinate_card.dart';
 
 /// Layout usado pela tela.
 ///
@@ -291,7 +291,8 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
           // mobile o pino selecionado mostra apenas o card de Street View.
           infoWindow: _layout != AtendimentoLayout.web ||
                   selected == null ||
-                  !store.showInfoWindow
+                  !store.showInfoWindow ||
+                  store.editing != null
               ? null
               : RoteiroInfoWindowData(
                   title: selected.displayName,
@@ -335,13 +336,22 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
             ),
           ),
         if (_layout == AtendimentoLayout.web) _buildMapPills(context),
-        if (store.canEditCoordinate && store.editing != null)
+        // Confirmação da alteração de coordenada: panorama à esquerda, dados
+        // do cliente à direita e o botão Mudar Coordenada (Web).
+        if (_layout == AtendimentoLayout.web && store.editing != null)
           Positioned(
             left: 12,
             right: 12,
-            // No Web a barra fica abaixo das pílulas Satélite/StreetView.
-            top: _layout == AtendimentoLayout.web ? 62 : 12,
-            child: CoordinateEditorBar(store: store),
+            bottom: 15,
+            child: AtendimentoCoordinateCard(
+              store: store,
+              verifyStreetView: (coord) async {
+                final result =
+                    await _mapController.streetViewService.verify(coord);
+                return result.available;
+              },
+              onOpenStreetView: _mapController.openStreetView,
+            ),
           ),
       ],
     );
@@ -402,13 +412,6 @@ class _AtendimentoBodyState extends State<AtendimentoBody> {
                         : null,
                     onMapTap: (_) => store.closeInfoWindow(),
                   ),
-                  if (store.canEditCoordinate && store.editing != null)
-                    Positioned(
-                      left: 12,
-                      right: 12,
-                      top: 12,
-                      child: CoordinateEditorBar(store: store),
-                    ),
                 ],
               );
             },

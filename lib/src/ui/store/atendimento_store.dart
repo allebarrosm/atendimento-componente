@@ -634,11 +634,12 @@ abstract class AtendimentoStoreBase with Store {
             startCoordinateEdit(atendimento);
             moveEditingCoordinate(newCoord);
           },
-          onTap: () => select(
-            atendimento,
-            markerId: markerId,
-            coordinate: position,
-          ),
+          onTap: () {
+            select(atendimento, markerId: markerId, coordinate: position);
+            // No modo de alteração, tocar no pino do cliente já abre o card
+            // de confirmação (sem precisar arrastar).
+            if (coordinateEditing) startCoordinateEdit(atendimento);
+          },
         ),
       );
     }

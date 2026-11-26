@@ -3,20 +3,18 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:roteiro/ui.dart'
     show RoteiroStreetViewRequest, buildDefaultStreetView;
 
-/// Card de Street View exibido ao selecionar um pino no mapa.
+/// Miniatura do panorama (150x100) com a etiqueta "Street View".
 ///
-/// Mesmo funcionamento do Gestão/BackOffice: card de 450x200 no rodapé, com
-/// fechar no topo à direita e uma **miniatura** do panorama (150x100). Ao tocar
-/// na miniatura, o mapa entra no Street View.
-class AtendimentoStreetViewCard extends StatefulWidget {
-  const AtendimentoStreetViewCard({
+/// Usada pelo card do mobile e pelo card de confirmação da alteração de
+/// coordenada no Web. Enquanto verifica o ponto (ou quando não há panorama)
+/// mostra o mesmo quadro vazio dos apps.
+class AtendimentoStreetViewPreview extends StatefulWidget {
+  const AtendimentoStreetViewPreview({
     super.key,
     required this.coordinate,
     required this.verify,
-    required this.onOpen,
-    this.onClose,
-    this.maxWidth = 450,
-    this.previewSize = const Size(150, 100),
+    this.onTap,
+    this.size = const Size(150, 100),
   });
 
   final LatLng coordinate;
@@ -24,19 +22,18 @@ class AtendimentoStreetViewCard extends StatefulWidget {
   /// Consulta se existe panorama no ponto (Street View Metadata API).
   final Future<bool> Function(LatLng coordinate) verify;
 
-  /// Chamado ao tocar na miniatura.
-  final VoidCallback onOpen;
+  /// Chamado ao tocar na miniatura (abre o panorama).
+  final VoidCallback? onTap;
 
-  final VoidCallback? onClose;
-  final double maxWidth;
-  final Size previewSize;
+  final Size size;
 
   @override
-  State<AtendimentoStreetViewCard> createState() =>
-      _AtendimentoStreetViewCardState();
+  State<AtendimentoStreetViewPreview> createState() =>
+      _AtendimentoStreetViewPreviewState();
 }
 
-class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
+class _AtendimentoStreetViewPreviewState
+    extends State<AtendimentoStreetViewPreview> {
   /// `null` = verificando, `true` = tem panorama, `false` = não tem.
   bool? _available;
   LatLng? _checked;
@@ -48,7 +45,7 @@ class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
   }
 
   @override
-  void didUpdateWidget(covariant AtendimentoStreetViewCard oldWidget) {
+  void didUpdateWidget(covariant AtendimentoStreetViewPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.coordinate != widget.coordinate) _check();
   }
@@ -73,54 +70,9 @@ class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: widget.maxWidth),
-          child: Material(
-            color: scheme.surface,
-            elevation: 4,
-            borderRadius: BorderRadius.circular(10),
-            clipBehavior: Clip.antiAlias,
-            child: SizedBox(
-              height: 200,
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: scheme.onSurface),
-                      onPressed: widget.onClose,
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: _preview(context),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _preview(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final size = widget.previewSize;
+    final size = widget.size;
 
     if (_available != true) {
-      // Enquanto verifica (ou sem panorama) mostra o mesmo quadro vazio do app.
       return Container(
         width: size.width,
         height: size.height,
@@ -131,7 +83,7 @@ class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
     final coordinate = widget.coordinate;
 
     return GestureDetector(
-      onTap: widget.onOpen,
+      onTap: widget.onTap,
       child: SizedBox(
         width: size.width,
         height: size.height,
@@ -168,6 +120,85 @@ class _AtendimentoStreetViewCardState extends State<AtendimentoStreetViewCard> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Card de Street View exibido ao selecionar um pino no mapa (mobile).
+///
+/// Mesmo funcionamento do Gestão: card de 450x200 no rodapé, com fechar no topo
+/// à direita e a **miniatura** do panorama. Ao tocar na miniatura, o mapa entra
+/// no Street View.
+class AtendimentoStreetViewCard extends StatelessWidget {
+  const AtendimentoStreetViewCard({
+    super.key,
+    required this.coordinate,
+    required this.verify,
+    required this.onOpen,
+    this.onClose,
+    this.maxWidth = 450,
+    this.previewSize = const Size(150, 100),
+  });
+
+  final LatLng coordinate;
+
+  /// Consulta se existe panorama no ponto (Street View Metadata API).
+  final Future<bool> Function(LatLng coordinate) verify;
+
+  /// Chamado ao tocar na miniatura.
+  final VoidCallback onOpen;
+
+  final VoidCallback? onClose;
+  final double maxWidth;
+  final Size previewSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Material(
+            color: scheme.surface,
+            elevation: 4,
+            borderRadius: BorderRadius.circular(10),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 200,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: scheme.onSurface),
+                      onPressed: onClose,
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: AtendimentoStreetViewPreview(
+                          coordinate: coordinate,
+                          verify: verify,
+                          onTap: onOpen,
+                          size: previewSize,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

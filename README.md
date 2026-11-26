@@ -94,7 +94,7 @@ lib/
       widgets/atendimento_filter_panel.dart
       widgets/atendimento_grid.dart     # grade do Web
       widgets/atendimento_stats_panel.dart
-      widgets/coordinate_editor_bar.dart
+      widgets/atendimento_coordinate_card.dart
       theme/atendimento_theme.dart
       atendimento_body.dart             # layouts mobile/web
       atendimento_screen.dart           # Scaffold de conveniência
@@ -313,11 +313,14 @@ coordenadas** do cabeçalho do app (`store.setCoordinateEditing`), que nasce
 desligado como no BackOffice antigo. No Android nunca é possível alterar. O
 fluxo:
 
-1. ao ligar o modo, os pinos de cliente viram **alvo** e ficam arrastáveis;
-2. ao arrastar um pino, abre a barra sobre o mapa com endereço, coordenada e
-   **Salvar/Cancelar** (o mapa continua interativo);
-3. o botão **Localizar** geocodifica o endereço digitado;
-4. `Salvar` chama `POST /api/endereco/cordenadas` e atualiza a lista/marcadores.
+1. ao ligar o modo, os pinos de cliente viram **alvo**;
+2. tocar no pino abre o **card de confirmação** no rodapé: panorama à esquerda,
+   dados do cliente (nome, endereço e coordenada) à direita e o botão
+   **Mudar Coordenada**;
+3. o botão abre um diálogo para digitar o novo endereço (geocodificado);
+   arrastar o pino também move a coordenada;
+4. com a coordenada alterada o botão vira **Confirmar mudança**, que grava em
+   `POST /api/endereco/cordenadas`.
 
 No Android `saveCoordinate()` é bloqueado e os pinos não arrastam.
 
