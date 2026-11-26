@@ -124,20 +124,26 @@ class AtendimentoCoordinateCard extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              FilledButton(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: scheme.primary,
-                                  foregroundColor: scheme.onPrimary,
-                                ),
-                                onPressed: store.savingCoordinate
-                                    ? null
-                                    : changed
-                                        ? () => store.saveCoordinate()
-                                        : () => _askAddress(context),
-                                child: Text(
-                                  changed
-                                      ? 'Confirmar mudança'
-                                      : 'Mudar Coordenada',
+                              // Sempre "Mudar Coordenada", branco e
+                              // centralizado; com a coordenada já alterada
+                              // (arrasto/endereço) ele grava no backend.
+                              Center(
+                                child: FilledButton(
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: scheme.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 14,
+                                    ),
+                                    shape: const StadiumBorder(),
+                                  ),
+                                  onPressed: store.savingCoordinate
+                                      ? null
+                                      : changed
+                                          ? () => store.saveCoordinate()
+                                          : () => _askAddress(context),
+                                  child: const Text('Mudar Coordenada'),
                                 ),
                               ),
                             ],

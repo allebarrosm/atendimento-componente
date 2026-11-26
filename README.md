@@ -320,7 +320,7 @@ fluxo:
 3. o botão abre um diálogo para digitar o novo endereço (geocodificado);
    arrastar o pino também move a coordenada (ele fica **vermelho** durante o
    arrasto e volta ao alvo azul ao soltar);
-4. com a coordenada alterada o botão vira **Confirmar mudança**, que grava em
+4. com a coordenada alterada o mesmo botão **Mudar Coordenada** grava em
    `POST /api/endereco/cordenadas`.
 
 No Android `saveCoordinate()` é bloqueado e os pinos não arrastam.

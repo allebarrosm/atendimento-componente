@@ -310,3 +310,11 @@ Correções encontradas ao conferir o retorno real de `GetClientesSemAtendimento
 - Pino do cliente no modo de alteração: fica **vermelho** enquanto é arrastado
   e volta ao **alvo azul** ao soltar, como no BackOffice antigo.
 - 104 testes.
+
+## 0.1.28 — 2025-11-26
+
+- O botão do card de confirmação é sempre **"Mudar Coordenada"** (nunca
+  "Confirmar mudança"), com texto **branco**, formato pílula e centralizado;
+  quando a coordenada já foi alterada (endereço ou arrasto) ele grava a
+  mudança, senão abre o diálogo do novo endereço.
+- 104 testes.

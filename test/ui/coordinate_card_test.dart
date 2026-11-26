@@ -50,11 +50,12 @@ void main() {
     expect(find.text('Rua Um, 10'), findsOneWidget);
     expect(find.text('Mudar Coordenada'), findsOneWidget);
 
-    // Arrastar o pino (aqui via store) troca a ação para confirmar.
+    // Mesmo depois de arrastar o botão continua "Mudar Coordenada".
     store.moveEditingCoordinate(const LatLng(-9.0, -35.0));
     await tester.pump();
 
-    expect(find.text('Confirmar mudança'), findsOneWidget);
+    expect(find.text('Mudar Coordenada'), findsOneWidget);
+    expect(find.text('Confirmar mudança'), findsNothing);
   });
 
   testWidgets('fechar o card cancela a edição', (tester) async {
