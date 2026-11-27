@@ -24,7 +24,7 @@ dependencies:
   roteiro:
     git:
       url: https://github.com/allebarrosm/roteiro-componente
-      ref: 5f7c1609b723ccf46eb6bdc645aa50acf24d1e34
+      ref: c3cada57b0c9391fbf127c8dd4b238901bf8d900
 
 dev_dependencies:
   flutter_test:
